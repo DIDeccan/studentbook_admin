@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'studentbookadminfrontend'
+    'rest_framework',
+    'studentbookadminfrontend',
 ]
 
 MIDDLEWARE = [
@@ -76,11 +77,11 @@ WSGI_APPLICATION = 'studentbookadminbackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',   # or mysql, sqlite3, oracle
-        'NAME': 'studentbook_db',
-        'USER': 'postgres',
-        'PASSWORD': 'student',
-        'HOST': '192.168.0.6',   # or IP, e.g. '127.0.0.1'
-        'PORT': '5432',          # default for PostgreSQL
+        'NAME': 'studentbook_db', # database name
+        'USER': 'postgres',       # username
+        'PASSWORD': 'student',    # password
+        'HOST': '192.168.0.5',   # database server (or IP)
+        'PORT': '5432',          # default PostgreSQL port
     }
 }
 
@@ -129,3 +130,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ]
+}
