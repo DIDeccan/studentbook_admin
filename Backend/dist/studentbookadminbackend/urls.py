@@ -20,5 +20,8 @@ from studentbookadminfrontend.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('studentbookadminfrontend.urls.dashboard_urls'))
-]
+    path('',include('studentbookadminfrontend.urls.dashboard_urls')),
+    path('dashboard/', include('studentbookadminfrontend.urls.dashboard_urls')),
+
+
+]   
