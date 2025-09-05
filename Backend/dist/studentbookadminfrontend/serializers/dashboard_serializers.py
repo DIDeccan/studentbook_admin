@@ -14,16 +14,16 @@ class ClassSerializer(serializers.ModelSerializer):
         model = Class
         fields = '__all__'  # or list the fields you want
 
-class UserLoginSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
-    status = serializers.SerializerMethodField()
+# class UserLoginSerializer(serializers.ModelSerializer):
+#     name = serializers.SerializerMethodField()
+#     status = serializers.SerializerMethodField()
 
-    class Meta:
-        model = User
-        fields = ['id', 'name', 'email', 'phone_number', 'login_time', 'status']
+#     class Meta:
+#         model = User
+#         fields = ['id', 'name', 'email', 'phone_number', 'login_time', 'status']
 
-    def get_name(self, obj):
-        return f"{obj.first_name} {obj.last_name}"
+#     def get_name(self, obj):
+#         return f"{obj.first_name} {obj.last_name}"
 
-    def get_status(self, obj):
-        return "Active" if obj.is_active else "Inactive"
+#     def get_status(self, obj):
+#         return "Active" if obj.is_active else "Inactive"

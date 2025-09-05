@@ -14,7 +14,7 @@ from django.db.models import F
 from django.http import JsonResponse
 from ..models import SubscriptionOrder
 from studentbookadminfrontend.models import User
-from studentbookadminfrontend.serializers.dashboard_serializers import UserLoginSerializer
+# from studentbookadminfrontend.serializers.dashboard_serializers import UserLoginSerializer
 
 
 
@@ -170,17 +170,34 @@ class TransactionsAPIView(APIView):
 class UserLoginListAPIView(APIView):
     def get(self, request):
         # Fetch all users (or add filters later)
-        queryset = User.objects.all().order_by('-login_time')
-        print(queryset.count())
+        students = Student.objects.all().order_by('-login_time')
+        date_filter = request.query_params.get('date')
+        if date_filter:
+            students = students.filter(login_time__date=date_filter)
+       
 
         # Serialize data
-        serializer = UserLoginSerializer(queryset, many=True)
+        student_data =  []
+        for student in students:
+            student_data.append({
+                'name' : student.first_name,
+                'email':student.email,
+                'login_time':student.login_time,
+                'status': student.is_active,
+           
+
+            })
+            print(student.login_time)
+
 
         return api_response(
             message="User login details fetched successfully",
             message_type="success",
             status_code=status.HTTP_200_OK,
-            data=serializer.data
+            data=student_data
         )
+
+
+
 
  
