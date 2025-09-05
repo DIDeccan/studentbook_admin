@@ -8,7 +8,7 @@ const App = () => {
     <Suspense fallback={null}>
       <Router />
     </Suspense>
-  )
-}
+  );
+};
 
 export default App

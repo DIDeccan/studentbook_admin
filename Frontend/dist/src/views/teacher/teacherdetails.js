@@ -1,247 +1,194 @@
-// ** React Imports
-import { Fragment, useState, forwardRef } from 'react'
-
-// ** Add New Modal Component
+import { Fragment, useState, useEffect } from 'react'
 import AddNewModal from './addteacherdetails'
-
-// ** Third Party Components
-import ReactPaginate from 'react-paginate'
-import DataTable from 'react-data-table-component'
-import { ChevronDown, Share, Printer, FileText, File, Grid, Copy, Plus } from 'react-feather'
 import {
   Card,
   CardHeader,
   CardTitle,
   Button,
-  UncontrolledButtonDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   Input,
   Label,
   Row,
-  Col
+  Col,
+  Table,
+  Badge
 } from 'reactstrap'
 
-// ** Sample Table Columns
-const columns = [
-  {
-    name: 'Full Name',
-    selector: row => row.full_name,
-    sortable: true
-  },
-  {
-    name: 'Email',
-    selector: row => row.email,
-    sortable: true
-  },
-  {
-    name: 'Post',
-    selector: row => row.post,
-    sortable: true
-  },
-  {
-    name: 'Age',
-    selector: row => row.age,
-    sortable: true
-  },
-  {
-    name: 'Salary',
-    selector: row => row.salary,
-    sortable: true
-  },
-  {
-    name: 'Start Date',
-    selector: row => row.start_date,
-    sortable: true
-  },
-  {
-    name: 'Status',
-    selector: row => row.status,
-    sortable: true
-  }
-]
+const LOCAL_KEY = 'teachers_list_v1'
 
-// ** Sample Data
-const data = [
-  {
-    id: 1,
-    full_name: 'John Doe',
-    email: 'john@example.com',
-    post: 'Software Engineer',
-    age: '28',
-    salary: '$5000',
-    start_date: '2022-01-10',
-    status: 1
-  },
-  {
-    id: 2,
-    full_name: 'Jane Smith',
-    email: 'jane@example.com',
-    post: 'UI/UX Designer',
-    age: '25',
-    salary: '$4200',
-    start_date: '2022-02-15',
-    status: 2
-  },
-  {
-    id: 3,
-    full_name: 'Mike Johnson',
-    email: 'mike@example.com',
-    post: 'Project Manager',
-    age: '35',
-    salary: '$7500',
-    start_date: '2021-12-01',
-    status: 3
-  }
-]
-
-// ** Bootstrap Checkbox Component
-const BootstrapCheckbox = forwardRef(({ onClick, ...rest }, ref) => (
-  <div className='custom-control custom-checkbox'>
-    <input type='checkbox' className='custom-control-input' ref={ref} {...rest} />
-    <label className='custom-control-label' onClick={onClick} />
-  </div>
-))
-
-const DataTableWithButtons = () => {
-  // ** States
+const Teachertable = () => {
   const [modal, setModal] = useState(false)
-  const [currentPage, setCurrentPage] = useState(0)
   const [searchValue, setSearchValue] = useState('')
+  const [teachers, setTeachers] = useState([])
   const [filteredData, setFilteredData] = useState([])
+  const sampleData = [
+    {
+      id: 1,
+      name: 'John Doe',
+      email: 'john@example.com',
+      phone: '9876543210',
+      registeredClass: 'Class 6',
+      registrationDate: '2023-01-10',
+      status: 'Active'
+    },
+    {
+      id: 2,
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      phone: '9123456780',
+      registeredClass: 'Class 7',
+      registrationDate: '2023-02-15',
+      status: 'Inactive'
+    },
+    {
+      id: 3,
+      name: 'Mike Johnson',
+      email: 'mike@example.com',
+      phone: '9988776655',
+      registeredClass: 'Class 8',
+      registrationDate: '2023-03-20',
+      status: 'Active'
+    }
+  ]
+  useEffect(() => {
+    const stored = localStorage.getItem(LOCAL_KEY)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      setTeachers(parsed)
+      setFilteredData(parsed)
+    } else {
+      setTeachers(sampleData)
+      setFilteredData(sampleData)
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(sampleData))
+    }
+  }, [])
 
-  // ** Function to handle Modal toggle
+  // Persist on change
+  useEffect(() => {
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(teachers))
+  }, [teachers])
+
   const handleModal = () => setModal(!modal)
 
-  // ** Function to handle filter
+  // Add teacher (from modal)
+  const handleAddTeacher = newTeacher => {
+    const teacherWithId = { ...newTeacher, id: Date.now() }
+    const updated = [...teachers, teacherWithId]
+    setTeachers(updated)
+    setFilteredData(applyFilter(updated, searchValue))
+  }
+
+  // Delete teacher
+  const handleDelete = id => {
+    const updated = teachers.filter(t => t.id !== id)
+    setTeachers(updated)
+    setFilteredData(applyFilter(updated, searchValue))
+  }
+
+  // Search filter
+  const applyFilter = (list, value) => {
+    if (!value) return list
+    const v = value.toLowerCase()
+    return list.filter(item =>
+      item.name.toLowerCase().includes(v) ||
+      item.email.toLowerCase().includes(v) ||
+      item.phone.toLowerCase().includes(v) ||
+      item.registeredClass.toLowerCase().includes(v) ||
+      item.registrationDate.toLowerCase().includes(v) ||
+      item.status.toLowerCase().includes(v)
+    )
+  }
+
   const handleFilter = e => {
     const value = e.target.value
-    let updatedData = []
     setSearchValue(value)
-
-    if (value.length) {
-      updatedData = data.filter(item => {
-        return (
-          item.full_name.toLowerCase().includes(value.toLowerCase()) ||
-          item.email.toLowerCase().includes(value.toLowerCase()) ||
-          item.post.toLowerCase().includes(value.toLowerCase()) ||
-          item.age.toLowerCase().includes(value.toLowerCase()) ||
-          item.salary.toLowerCase().includes(value.toLowerCase()) ||
-          item.start_date.toLowerCase().includes(value.toLowerCase())
-        )
-      })
-      setFilteredData(updatedData)
-    }
-  }
-
-  // ** Function to handle Pagination
-  const handlePagination = page => {
-    setCurrentPage(page.selected)
-  }
-
-  // ** Custom Pagination
-  const CustomPagination = () => (
-    <ReactPaginate
-      previousLabel=''
-      nextLabel=''
-      forcePage={currentPage}
-      onPageChange={page => handlePagination(page)}
-      pageCount={searchValue.length ? filteredData.length / 7 : data.length / 7 || 1}
-      breakLabel='...'
-      pageRangeDisplayed={2}
-      marginPagesDisplayed={2}
-      activeClassName='active'
-      pageClassName='page-item'
-      breakClassName='page-item'
-      breakLinkClassName='page-link'
-      nextLinkClassName='page-link'
-      nextClassName='page-item next'
-      previousClassName='page-item prev'
-      previousLinkClassName='page-link'
-      pageLinkClassName='page-link'
-      containerClassName='pagination react-paginate separated-pagination pagination-sm justify-content-end pr-1 mt-1'
-    />
-  )
-
-  // ** CSV Export function (same as yours)
-  function convertArrayOfObjectsToCSV(array) {
-    let result
-    const columnDelimiter = ','
-    const lineDelimiter = '\n'
-    const keys = Object.keys(data[0])
-    result = ''
-    result += keys.join(columnDelimiter)
-    result += lineDelimiter
-    array.forEach(item => {
-      let ctr = 0
-      keys.forEach(key => {
-        if (ctr > 0) result += columnDelimiter
-        result += item[key]
-        ctr++
-      })
-      result += lineDelimiter
-    })
-    return result
-  }
-
-  function downloadCSV(array) {
-    const link = document.createElement('a')
-    let csv = convertArrayOfObjectsToCSV(array)
-    if (csv === null) return
-    const filename = 'export.csv'
-    if (!csv.match(/^data:text\/csv/i)) {
-      csv = `data:text/csv;charset=utf-8,${csv}`
-    }
-    link.setAttribute('href', encodeURI(csv))
-    link.setAttribute('download', filename)
-    link.click()
+    setFilteredData(applyFilter(teachers, value))
   }
 
   return (
     <Fragment>
       <Card>
-        <CardHeader className='flex-md-row flex-column align-md-items-center align-items-start border-bottom'>
+        <CardHeader className='d-flex justify-content-between align-items-center'>
           <CardTitle tag='h4'>Teacher Details</CardTitle>
-          <div className='d-flex mt-md-0 mt-1'>
-            <Button className='ml-2' color='primary' onClick={handleModal}>
-              <span className='align-middle ml-50'>Add Instructor</span>
-            </Button>
-          </div>
+          <Button color='primary' onClick={handleModal}>
+            + Add Teacher
+          </Button>
         </CardHeader>
-        <Row className='justify-content-end mx-0'>
-          <Col className='d-flex align-items-center justify-content-end mt-1' md='2' sm='12'>
-            <Label className='mr-1' for='search-input'>
-              Search 
+
+        <Row className='justify-content-end mx-0 mb-2'>
+          <Col md='4' sm='12'>
+            <Label for='search-input' className='mb-0'>
+              Search
             </Label>
-            &nbsp;
             <Input
-              className='dataTable-filter mb-50'
-              type='text'
-              bsSize='sm'
               id='search-input'
+              type='text'
               value={searchValue}
               onChange={handleFilter}
+              placeholder='Search by any field...'
             />
           </Col>
         </Row>
-        <DataTable
-          noHeader
-          pagination
-          selectableRows
-          columns={columns}
-          paginationPerPage={7}
-          className='react-dataTable'
-          sortIcon={<ChevronDown size={10} />}
-          paginationDefaultPage={currentPage + 1}
-          paginationComponent={CustomPagination}
-          data={searchValue.length ? filteredData : data}
-          selectableRowsComponent={BootstrapCheckbox}
-        />
+        <div className='table-responsive'>
+          <Table striped hover bordered className='mb-0 text-center'>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Class</th>
+                <th>Registration Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.length ? (
+                filteredData.map(item => (
+                  <tr key={item.id}>
+                    <td>{item.name}</td>
+                    <td>{item.email}</td>
+                    <td>{item.phone}</td>
+                    <td>{item.registeredClass}</td>
+                    <td>{item.registrationDate}</td>
+                    <td>
+                      <Badge
+                        color={item.status === 'Active' ? 'success' : 'secondary'}
+                      >
+                        {item.status}
+                      </Badge>
+                    </td>
+                    <td>
+                      <Button
+                        size='sm'
+                        color='danger'
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        Delete
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan='7' className='text-center text-muted'>
+                    No records found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+        </div>
       </Card>
-      <AddNewModal open={modal} handleModal={handleModal} />
+
+      {/* Modal */}
+      <AddNewModal
+        open={modal}
+        handleModal={handleModal}
+        onAddTeacher={handleAddTeacher}
+        existingPhones={teachers.map(t => t.phone)} 
+      />
     </Fragment>
   )
 }
 
-export default DataTableWithButtons
+export default Teachertable;
