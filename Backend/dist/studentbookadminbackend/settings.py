@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-1*gx0t8%vdycf*+bya_)vfp8t6s3+qhi2md!s2(!%)*8v17=$2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -77,10 +77,10 @@ WSGI_APPLICATION = 'studentbookadminbackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',   # or mysql, sqlite3, oracle
-        'NAME': 'studentbook_db', # database name
+        'NAME': 'studentbook_server_database', # database name
         'USER': 'postgres',       # username
-        'PASSWORD': 'student',    # password
-        'HOST': '192.168.0.5',   # database server (or IP)
+        'PASSWORD': 'DIDecc@an123',    # password
+        'HOST': '34.207.178.176',   # database server (or IP)
         'PORT': '5432',          # default PostgreSQL port
     }
 }
@@ -90,6 +90,7 @@ MIGRATION_MODULES = {
     'studentbookadminfrontend': None,   # disables migrations for this app
 }
 
+AUTH_USER_MODEL = 'studentbookadminfrontend.User'
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
