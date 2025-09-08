@@ -1,0 +1,6 @@
+{
+  "dashboard": {
+    "classDistribution": "/class-distribution-pie-chart",
+    "lastTransactions": "/last-transactions"
+  }
+}
