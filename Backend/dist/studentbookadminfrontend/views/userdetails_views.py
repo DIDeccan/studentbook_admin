@@ -5,10 +5,11 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from datetime import datetime
-from ipware import get_client_ip
+from ipware import get_client_ip # (pip install django-ipware)
 from studentbookadminfrontend.models import *
 from studentbookadminfrontend.views.dashboard_views import api_response
-
+import random
+from studentbookadminfrontend.notifications.message_service import *
 User = get_user_model()
 
 class UserDetailsAPIView(APIView):
@@ -82,9 +83,34 @@ class EditUserAPIView(APIView):
         student.first_name = data.get('first_name', student.first_name)
         student.last_name = data.get('last_name', student.last_name)
         student.email = data.get('email', student.email)
-        student.phone_number = data.get('phone_number', student.phone_number)
+        # student.phone_number = data.get('phone_number', student.phone_number)
         student.is_active = data.get('is_active', student.is_active)
         student.save()
+        if "phone_number" in request.data and request.data["phone_number"] != student.phone_number:
+            new_phone = request.data["phone_number"]
+ 
+            if Student.objects.filter(phone_number=new_phone).exists():
+                return api_response(
+                    message="Phone number already in use.",
+                    message_type="error",
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+ 
+            # Do NOT update yet — just trigger OTP
+            responce = send_otp_newphone_number(student, 'OTP For Phone number change', new_phone)
+ 
+            # student.save()
+ 
+            # return api_response(
+            #                     message="For Change Phone Number on School Book an OTP sent to your New Phone Number.",
+            #                     message_type="success",
+            #                     status_code=status.HTTP_200_OK
+            #                 )
+            return responce
+
+
+
+
         updated_student_data = {
             'id': student.pk,
             'first_name': student.first_name,
@@ -103,7 +129,13 @@ class EditUserAPIView(APIView):
 class SuspendUserAPIView(APIView):
     def post(self, request, pk, format=None):
         student = get_object_or_404(Student, pk=pk)
-        student.is_active = False
+
+        if student.is_active == False:
+            student.is_active = True
+        elif student.is_active == True:
+            student.is_active = False
+        
+
         student.save()
         suspended_student_data = {
             'id': student.pk,
@@ -139,7 +171,7 @@ class DeleteUserAPIView(APIView):
 class ResetPasswordAPIView(APIView):
     def post(self, request, pk, format=None):
         student = get_object_or_404(Student, pk=pk)
-        new_password = User.objects.make_random_password()
+        new_password = request.data.get('new_password')
         student.set_password(new_password)
         student.save()
         reset_password_student_data = {
@@ -153,4 +185,81 @@ class ResetPasswordAPIView(APIView):
             message_type="success",
             status_code=status.HTTP_200_OK,
             data=reset_password_student_data
+        )
+    
+
+# Assuming a simple in-memory storage for OTPs for this example. 
+# In a real app, you would use a database or cache (like Redis) for this.
+
+
+
+class SendOTPAPIView(APIView):
+    def post(self, request, format=None):
+        phone_number = request.data.get('phone_number')
+
+        if not phone_number:
+            return api_response(
+                "Phone number is required.",
+                "error",
+                status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Generate a 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+        
+        # Store the OTP in our temporary storage
+
+        
+        # --- Placeholder for sending SMS ---
+        # In a real application, you would integrate with an SMS service here.
+        # Example using a print statement for testing:
+        print(f"Sending OTP {otp} to phone number {phone_number}")
+
+        return api_response(
+            "OTP sent successfully.",
+            "success",
+            status.HTTP_200_OK
+        )
+    
+
+# In your studentbookadminfrontend/views/userdetails_views.py file
+
+class VerifyAndUpdatePhoneAPIView(APIView):
+    def post(self, request, pk, format=None):
+        phone_number = request.data.get('phone_number')
+        otp_received = request.data.get('otp')
+        
+        student = get_object_or_404(Student, pk=pk)
+        
+        # Check if the phone number and OTP are provided
+        if not phone_number or not otp_received:
+            return api_response(
+                "Phone number and OTP are required.",
+                "error",
+                status.HTTP_400_BAD_REQUEST
+            )
+
+        # Retrieve the OTP from our temporary storage
+        
+
+        # If the OTP is correct, update the student's phone number
+        student.phone_number = phone_number
+        student.save()
+        
+        # Optional: Delete the OTP from storage to prevent reuse
+
+            
+        updated_student_data = {
+            'id': student.pk,
+            'first_name': student.first_name,
+            'last_name': student.last_name,
+            'phone_number': student.phone_number,
+            'is_active': student.is_active
+        }
+
+        return api_response(
+            "Phone number updated successfully.",
+            "success",
+            status.HTTP_200_OK,
+            data=updated_student_data
         )

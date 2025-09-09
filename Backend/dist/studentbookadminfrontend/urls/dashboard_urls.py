@@ -10,8 +10,7 @@ urlpatterns = [
     path('last-transactions', TransactionsAPIView.as_view()),
     path('user-login-details', UserLoginListAPIView.as_view()),
     # path('login-history', LoginHistoryView.as_view()),
-
-    
+    path('student-overview', StudentOverviewAPIView.as_view()),
 
 
 ]

@@ -6,7 +6,9 @@ from studentbookadminfrontend.views.userdetails_views import (
     EditUserAPIView,
     SuspendUserAPIView,
     DeleteUserAPIView,
-    ResetPasswordAPIView
+    ResetPasswordAPIView,
+    SendOTPAPIView,               # <-- Add this line
+    VerifyAndUpdatePhoneAPIView   # <-- Add this line
 )
 
 urlpatterns = [
@@ -15,6 +17,9 @@ urlpatterns = [
     path('suspend/<int:pk>/', SuspendUserAPIView.as_view()),
     path('delete/<int:pk>/', DeleteUserAPIView.as_view()),
     path('reset-password/<int:pk>/', ResetPasswordAPIView.as_view()),
+    # New URLs for OTP verification
+    path('send-otp/', SendOTPAPIView.as_view(), name='send-otp'),
+    path('verify-phone/<int:pk>/', VerifyAndUpdatePhoneAPIView.as_view(), name='verify-phone'),
 ]
 
 

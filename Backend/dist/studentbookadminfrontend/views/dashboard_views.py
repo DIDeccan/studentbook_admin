@@ -1,14 +1,14 @@
 # views.py
 
 from rest_framework import generics, status
-from studentbookadminfrontend.models import Class
+from studentbookadminfrontend.models import Class, Student, User, SubscriptionOrder
 from studentbookadminfrontend.serializers.dashboard_serializers import *
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from studentbookadminfrontend.models import Student
+from django.db.models.functions import TruncMonth
 from django.db.models import Count
-from rest_framework.response import Response
+from django.contrib.auth import get_user_model
 from studentbookadminfrontend.serializers.dashboard_serializers import StudentSerializer
 from django.db.models import F
 from django.http import JsonResponse
@@ -23,17 +23,31 @@ from studentbookadminfrontend.models import User
 
 def api_response(message, message_type, status_code, data=None):
 
-    return Response(
+    if data is None:
+
+        return Response(
+        
+        {
+
+            "message": message,
+            "message_type": message_type,
+            "status_code": status_code,
+        },
+        status=status_code,
+    )
+
+    return Response(    
+        
         {
 
             "message": message,
             "message_type": message_type,
             "status_code": status_code,
             "data": data,
-        }
-
+        },
+        status=status_code,
     )
- 
+
 class ClassListAPIView(APIView):
 
     def get(self, request):
@@ -41,17 +55,13 @@ class ClassListAPIView(APIView):
         queryset = Class.objects.all()
         # Serialize the queryset
         serializer = ClassSerializer(queryset, many=True)
-        # Return response
-        return Response(
-            {
-                "message": "Class data fetched successfully",
-                "message_type": "success",
-                "data": serializer.data
-            },
-            status=status.HTTP_200_OK
+        return api_response(
+            message="Class data fetched successfully",
+            message_type="success",
+            status_code=status.HTTP_200_OK,
+            data=serializer.data
         )
 
-    
 class StudentListAPIView(APIView):
 
     def get(self, request):
@@ -60,15 +70,11 @@ class StudentListAPIView(APIView):
         
         # Serialize queryset
         serializer = StudentSerializer(queryset, many=True)
-
-        # Return API response
-        return Response(
-            {
-                "message": "Student data fetched successfully",
-                "message_type": "success",
-                "data": serializer.data
-            },
-            status=status.HTTP_200_OK
+        return api_response(
+            message="Student data fetched successfully",
+            message_type="success",
+            status_code=status.HTTP_200_OK,
+            data=serializer.data
         )
 
 class ClassDistributionAPIView(APIView):
@@ -79,17 +85,15 @@ class ClassDistributionAPIView(APIView):
 
         # Prepare data for pie chart
         chart_data = [
-            {"class": Class.objects.get(id = item['student_class']).name, "number_of_student": item['count']}
+            {"class": Class.objects.get(id=item['student_class']).name, "number_of_student": item['count']}
             for item in class_counts
         ]
 
         return api_response(
-        
-                message= "Class-wise distribution fetched successfully",
-                message_type= "success",
-                status_code=status.HTTP_200_OK,
-                data= chart_data
-            
+            message="Class-wise distribution fetched successfully",
+            message_type="success",
+            status_code=status.HTTP_200_OK,
+            data=chart_data
         )
 
 # class TransactionsAPIView(APIView):
@@ -149,11 +153,11 @@ class TransactionsAPIView(APIView):
                 "user_name": f"{o.student.first_name} {o.student.last_name}",
                 "user_email": o.student.email,
                 "student_phone": o.student.phone_number,
-                "class_name": o.course.name,  
+                "class_name": o.course.name,
                 "status": o.payment_status,
                 "amount": o.price,
                 "date": o.created_at,
-                "payment_mode":o.payment_mode
+                "payment_mode": o.payment_mode
             }
             for o in transactions
         ]
@@ -174,22 +178,14 @@ class UserLoginListAPIView(APIView):
         date_filter = request.query_params.get('date')
         if date_filter:
             students = students.filter(login_time__date=date_filter)
-       
-
-        # Serialize data
-        student_data =  []
+        student_data = []
         for student in students:
             student_data.append({
-                'name' : student.first_name,
-                'email':student.email,
-                'login_time':student.login_time,
-                'status': student.is_active,
-           
-
+                'name': student.first_name,
+                'email': student.email,
+                'login_time': student.login_time,
+                'status': "Active" if student.is_active else "Inactive",
             })
-            print(student.login_time)
-
-
         return api_response(
             message="User login details fetched successfully",
             message_type="success",
@@ -197,7 +193,35 @@ class UserLoginListAPIView(APIView):
             data=student_data
         )
 
-
-
-
- 
+class StudentOverviewAPIView(APIView):
+    def get(self, request):
+        class_counts = Student.objects.values('student_class__name').annotate(
+            count=Count('id')
+        ).order_by('student_class')
+        monthly_registrations = Student.objects.annotate(
+            month=TruncMonth('registered_date')
+        ).values('month').annotate(
+            count=Count('id')
+        ).order_by('month')
+        active_users_count = User.objects.filter(is_active=True).count()
+        inactive_users_count = User.objects.filter(is_active=False).count()
+        overview_data = {
+            "registered_students_by_class": [
+                {"class_name": item['student_class__name'], "student_count": item['count']}
+                for item in class_counts
+            ],
+            "monthly_registrations": [
+                {"month": item['month'].strftime('%b %Y'), "count": item['count']}
+                for item in monthly_registrations
+            ],
+            "active_vs_inactive_users": {
+                "active_users": active_users_count,
+                "inactive_users": inactive_users_count,
+            }
+        }
+        return api_response(
+            message="Student overview data fetched successfully",
+            message_type="success",
+            status_code=status.HTTP_200_OK,
+            data=overview_data
+        )

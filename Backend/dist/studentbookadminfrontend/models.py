@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.utils import timezone
 from datetime import timedelta
+from smart_selects.db_fields import ChainedForeignKey # If you're using this library  (#pip install django-smart-selects)
 
 class Class(models.Model):
     name = models.CharField(max_length=100)
@@ -184,5 +185,117 @@ class SubscriptionOrder(models.Model):
         managed = False
         db_table = "studentbookfrontend_subscriptionorder"
 
-   
+
+
+
+# --- Remaining Models from your team's code ---
+
+class School(models.Model):
+    name = models.CharField(max_length=255)
+    
+    class Meta:
+        managed = False
+        db_table = 'studentbookfrontend_school' # Correct table name from the other project
+        
+    def __str__(self):
+        return self.name
+
+class StudentPackage(models.Model):
+    student = models.ForeignKey("Student", on_delete=models.CASCADE, related_name="student_packages")
+    course = models.ForeignKey("Class", on_delete=models.CASCADE)
+    price = models.IntegerField()
+    subscription_taken_from = models.DateField(default=timezone.now)
+    subscription_valid_till = models.DateField()
+    
+    class Meta:
+        managed = False
+        db_table = 'studentbookfrontend_studentpackage' # Correct table name
+        
+    def __str__(self):
+        return f"{self.student.email} - {self.course.name}"
+
+class Subject(models.Model):
+    name = models.CharField(max_length=100)
+    icon = models.ImageField(upload_to='subject_icons/', blank=True, null=True)
+    course = models.ForeignKey("Class", on_delete=models.CASCADE, related_name='subjects')
+    
+    class Meta:
+        managed = False
+        db_table = 'studentbookfrontend_subject'
+    
+    def __str__(self):
+        return self.name
+
+class Unit(models.Model):
+    unit_name = models.CharField(max_length=100)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    course = models.ForeignKey("Class", on_delete=models.CASCADE, related_name='units')
+    subject = models.ForeignKey("Subject", on_delete=models.CASCADE, related_name="units")
+    
+    class Meta:
+        managed = False
+        db_table = 'studentbookfrontend_unit'
+
+    def __str__(self):
+        return self.unit_name
+    
+
+class Chapter(models.Model):
+    chapter_name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    chapter_icon = models.ImageField(upload_to='chapter_icons/', blank=True, null=True)
+    course = models.ForeignKey("Class", on_delete=models.CASCADE, related_name='chapters')
+    subject = models.ForeignKey("Subject", on_delete=models.CASCADE, related_name="chapters")
+    unit = models.ForeignKey("Unit", on_delete=models.CASCADE, related_name='chapters')
+
+    class Meta:
+        managed = False
+        db_table = 'studentbookfrontend_chapter'
+
+    def __str__(self):
+        return self.chapter_name
+
+class Topic(models.Model):
+    topic_name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    course = models.ForeignKey("Class", on_delete=models.CASCADE, related_name='topics')
+    subject = models.ForeignKey("Subject", on_delete=models.CASCADE, related_name="topics")
+    unit = models.ForeignKey("Unit", on_delete=models.CASCADE, related_name='topics')
+    chapter_name = models.ForeignKey("Chapter", on_delete=models.CASCADE, related_name='topics')
+
+    class Meta:
+        managed = False
+        db_table = 'studentbookfrontend_topic'
+
+    def __str__(self):
+        return self.topic_name   
+
+
+class SubTopic(models.Model):
+    subtopic_name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    course = models.ForeignKey("Class", on_delete=models.CASCADE, related_name='subtopics')
+    subject = models.ForeignKey("Subject", on_delete=models.CASCADE, related_name="subtopics")
+    unit = models.ForeignKey("Unit", on_delete=models.CASCADE, related_name='subtopics')
+    chapter_name = models.ForeignKey("Chapter", on_delete=models.CASCADE, related_name='subtopics')
+    topic_name = models.ForeignKey("Topic", on_delete=models.CASCADE, related_name='subtopics')
+
+    class Meta:
+        managed = False
+        db_table = 'studentbookfrontend_subtopic'
+
+    def __str__(self):
+        return self.subtopic_name
+        
+class GeneralContent(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    image = models.FileField(upload_to='general_content_files/', blank=True, null=True)
+    
+    class Meta:
+        managed = False
+        db_table = 'studentbookfrontend_generalcontent'
+    
+    def __str__(self):
+        return self.title 
 
