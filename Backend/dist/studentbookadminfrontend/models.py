@@ -75,6 +75,7 @@ class User(AbstractBaseUser):
     otp = models.CharField(max_length=50,null=True,blank=True)
     user_type = models.CharField(max_length=20, null=True,choices=USER_TYPE_CHOICES)
     login_time = models.DateTimeField(null=True)
+    logout_time = models.DateTimeField(null=True)
     otp_verified = models.BooleanField(default=False)
     registered_date = models.DateTimeField(auto_now_add=True)
     objects = UserManager()
@@ -215,78 +216,99 @@ class StudentPackage(models.Model):
         return f"{self.student.email} - {self.course.name}"
 
 class Subject(models.Model):
+ 
+    """
+    Represents a subject under a school class.
+    Stores subject name, optional icon, and the related class.
+    """
     name = models.CharField(max_length=100)
     icon = models.ImageField(upload_to='subject_icons/', blank=True, null=True)
-    course = models.ForeignKey("Class", on_delete=models.CASCADE, related_name='subjects')
-    
-    class Meta:
-        managed = False
-        db_table = 'studentbookfrontend_subject'
-    
+    course = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='subjects')
+ 
     def __str__(self):
         return self.name
-
-class Unit(models.Model):
-    unit_name = models.CharField(max_length=100)
-    description = models.CharField(max_length=255, blank=True, null=True)
-    course = models.ForeignKey("Class", on_delete=models.CASCADE, related_name='units')
-    subject = models.ForeignKey("Subject", on_delete=models.CASCADE, related_name="units")
     
     class Meta:
         managed = False
-        db_table = 'studentbookfrontend_unit'
-
-    def __str__(self):
-        return self.unit_name
+        db_table = "studentbookfrontend_subject"
     
+class Semester(models.Model):
+ 
+    """
+    Represents a Semester or chapter within a specific subject and class.
+    Stores Semester name, the related subject, and the class it belongs to.
+    """
+   
+    semester_name = models.CharField(max_length=100)
+    semester_number = models.IntegerField(null=True, blank=True)
 
+   
+ 
+    def __str__(self):
+        return self.semester_name
+    
+    class Meta:
+        managed = False
+        db_table = "studentbookfrontend_semester"
+    
 class Chapter(models.Model):
+    """
+    Represents a chapter within a specific unit, subject, and class.
+    Stores chapter name, optional description and icon, and links to its unit, subject, and class.
+    """
     chapter_name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, blank=True, null=True)
     chapter_icon = models.ImageField(upload_to='chapter_icons/', blank=True, null=True)
-    course = models.ForeignKey("Class", on_delete=models.CASCADE, related_name='chapters')
-    subject = models.ForeignKey("Subject", on_delete=models.CASCADE, related_name="chapters")
-    unit = models.ForeignKey("Unit", on_delete=models.CASCADE, related_name='chapters')
-
-    class Meta:
-        managed = False
-        db_table = 'studentbookfrontend_chapter'
-
+    course = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='chapters')
+    subject = ChainedForeignKey(Subject, chained_field="course",chained_model_field="course" ,on_delete=models.CASCADE, related_name="chapters")
+    # semester = ChainedForeignKey(Semester,chained_field="subject",chained_model_field="subject", on_delete=models.CASCADE, related_name='chapters',null=True, blank=True)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='chapters')
+ 
     def __str__(self):
         return self.chapter_name
-
-class Topic(models.Model):
-    topic_name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255, blank=True, null=True)
-    course = models.ForeignKey("Class", on_delete=models.CASCADE, related_name='topics')
-    subject = models.ForeignKey("Subject", on_delete=models.CASCADE, related_name="topics")
-    unit = models.ForeignKey("Unit", on_delete=models.CASCADE, related_name='topics')
-    chapter_name = models.ForeignKey("Chapter", on_delete=models.CASCADE, related_name='topics')
-
+    
     class Meta:
         managed = False
-        db_table = 'studentbookfrontend_topic'
+        db_table = "studentbookfrontend_chapter"
 
+class Subchapter(models.Model):
+    subchapter = models.CharField(max_length=20)
+    parent_subchapter = models.CharField(max_length=50, blank=True)
+    course = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='subchapter')
+    subject = ChainedForeignKey(Subject, chained_field="course",chained_model_field="course" ,on_delete=models.CASCADE, related_name="subchapter")
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='subchapter')
+    # semester = ChainedForeignKey(Semester,chained_field="subject",chained_model_field="subject", on_delete=models.CASCADE, related_name='subchapter')
+    chapter = ChainedForeignKey(Chapter, chained_field="course",chained_model_field="course" ,on_delete=models.CASCADE, related_name='subchapter')
+    video_name = models.CharField(max_length=255)
+    video_url = models.URLField()   # final S3/CloudFront URL
+    vedio_duration = models.CharField(max_length=50, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+ 
+    class Meta:
+        indexes = [
+            models.Index(fields=["course", "subject", "semester", "chapter", "subchapter"]),
+        ]
+ 
+    def save(self, *args, **kwargs):
+        """
+        Automatically set parent_subchapter:
+        - If subchapter = "5.1.1" → parent = "5.1"
+        - If subchapter = "5.1"   → parent = "5.1" (itself, since top-level)
+        """
+        if "." in self.subchapter:
+            self.parent_subchapter = ".".join(self.subchapter.split(".")[:-1])
+        else:
+            self.parent_subchapter = self.subchapter
+        super().save(*args, **kwargs)
+ 
     def __str__(self):
-        return self.topic_name   
-
-
-class SubTopic(models.Model):
-    subtopic_name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255, blank=True, null=True)
-    course = models.ForeignKey("Class", on_delete=models.CASCADE, related_name='subtopics')
-    subject = models.ForeignKey("Subject", on_delete=models.CASCADE, related_name="subtopics")
-    unit = models.ForeignKey("Unit", on_delete=models.CASCADE, related_name='subtopics')
-    chapter_name = models.ForeignKey("Chapter", on_delete=models.CASCADE, related_name='subtopics')
-    topic_name = models.ForeignKey("Topic", on_delete=models.CASCADE, related_name='subtopics')
-
+        return f"{self.video_name} (Class {self.class_id}, Subject {self.subject_id})"
+    
     class Meta:
         managed = False
-        db_table = 'studentbookfrontend_subtopic'
+        db_table = "studentbookfrontend_subchapter"
 
-    def __str__(self):
-        return self.subtopic_name
-        
+
 class GeneralContent(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -298,4 +320,9 @@ class GeneralContent(models.Model):
     
     def __str__(self):
         return self.title 
+    
+
+
+
+
 

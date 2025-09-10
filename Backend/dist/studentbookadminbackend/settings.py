@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'studentbookadminfrontend',
     'corsheaders',
+    'storages'
 ]
 
 MIDDLEWARE = [
@@ -146,3 +147,18 @@ REST_FRAMEWORK = {
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+
+
+
+ 
+AWS_ACCESS_KEY_ID = "AKIAYDKH4BBENWUUL64N"
+AWS_SECRET_ACCESS_KEY = "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"
+AWS_STORAGE_BUCKET_NAME = "1student-project-book"
+# AWS_REGION = "ap-south-1"
+AWS_S3_REGION_NAME = "ap-south-1"
+# This is the magic line 👇
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+
+MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/"
+ 

@@ -181,9 +181,11 @@ class UserLoginListAPIView(APIView):
         student_data = []
         for student in students:
             student_data.append({
+                'id':student.id,
                 'name': student.first_name,
                 'email': student.email,
                 'login_time': student.login_time,
+                'logout_time': student.logout_time,
                 'status': "Active" if student.is_active else "Inactive",
             })
         return api_response(

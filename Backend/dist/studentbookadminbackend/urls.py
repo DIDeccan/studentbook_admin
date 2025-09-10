@@ -31,4 +31,8 @@ urlpatterns = [
 
     # Payment Details URLs
     path('payment-details/', include('studentbookadminfrontend.urls.paymentdetails_urls')),
+
+    #content management URLS
+
+    path('content_management/',include('studentbookadminfrontend.urls.content_management_urls'))
 ]
