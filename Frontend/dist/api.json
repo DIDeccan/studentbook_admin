@@ -1,6 +1,15 @@
 {
   "dashboard": {
-    "classDistribution": "/class-distribution-pie-chart",
-    "lastTransactions": "/last-transactions"
+    "classDistribution": "/dashboard/class-distribution-pie-chart",
+    "lastTransactions": "/dashboard/last-transactions",
+    "LoginDetails": "/dashboard/user-login-details"
+  },
+  "users":{
+    "details": "/user-details/"
+  },
+  "payment":{
+    "payDetails":"/payment-details/"
   }
+
+
 }
