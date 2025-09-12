@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'studentbookadminfrontend',
     'corsheaders',
-    'storages'
+    'storages',
+    'moviepy'
 ]
 
 MIDDLEWARE = [

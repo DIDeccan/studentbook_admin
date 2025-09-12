@@ -278,7 +278,7 @@ class Subchapter(models.Model):
     subject = ChainedForeignKey(Subject, chained_field="course",chained_model_field="course" ,on_delete=models.CASCADE, related_name="subchapter")
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='subchapter')
     # semester = ChainedForeignKey(Semester,chained_field="subject",chained_model_field="subject", on_delete=models.CASCADE, related_name='subchapter')
-    chapter = ChainedForeignKey(Chapter, chained_field="course",chained_model_field="course" ,on_delete=models.CASCADE, related_name='subchapter')
+    chapter = ChainedForeignKey(Chapter, chained_field="subject",chained_model_field="subject" ,on_delete=models.CASCADE, related_name='subchapter')
     video_name = models.CharField(max_length=255)
     video_url = models.URLField()   # final S3/CloudFront URL
     vedio_duration = models.CharField(max_length=50, blank=True, null=True)
