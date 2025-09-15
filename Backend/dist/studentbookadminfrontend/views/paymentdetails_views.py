@@ -39,8 +39,8 @@ class PaymentDetailsAPIView(APIView):
             user = payment.student
             payment_data_list.append({
                 'transaction_id': payment.transaction_id,
-                'start_date': payment.subscription_start,
-                'end_date': payment.subscription_end,
+                # 'start_date': payment.subscription_start,
+                # 'end_date': payment.subscription_end,
                 'user_name': f"{user.first_name} {user.last_name}",
                 'user_email': user.email,
                 'class': payment.course.name,

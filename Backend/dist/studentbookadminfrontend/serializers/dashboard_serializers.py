@@ -27,3 +27,9 @@ class ClassSerializer(serializers.ModelSerializer):
 
 #     def get_status(self, obj):
 #         return "Active" if obj.is_active else "Inactive"
+    
+
+
+
+
+
