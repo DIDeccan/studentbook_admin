@@ -1,3 +1,4 @@
+/* Table hover */
 .custom-table tbody tr:hover td {
   color: #2b2a2a !important; 
 }
@@ -8,6 +9,7 @@
   border-color: var(--bs-border-color) !important;
   color: var(--bs-body-color) !important;
 }
+
 .form-control {
   color: var(--bs-body-color) !important;         
   background-color: var(--bs-form-control-bg) !important; 
@@ -36,6 +38,43 @@
   color: #666666 !important;
 }
 
+/* =============================
+   React-Select Dark Mode Styles
+   ============================= */
+.dark-layout .select__control {
+  background-color: #2c2c2c !important;
+  color: #ffffff !important;
+  border: 1px solid #555 !important;
+}
 
+.dark-layout .select__single-value {
+  color: #ffffff !important;
+}
 
+.dark-layout .select__placeholder {
+  color: #bbbbbb !important;
+}
 
+.dark-layout .select__menu {
+  background-color: #2c2c2c !important;
+  color: #ffffff !important;
+}
+
+.dark-layout .select__menu-list {
+  background-color: #2c2c2c !important;
+}
+
+.dark-layout .select__option {
+  background-color: #2c2c2c !important;
+  color: #ffffff !important;
+}
+
+.dark-layout .select__option--is-focused {
+  background-color: #444 !important;
+  color: #ffffff !important;
+}
+
+.dark-layout .select__option--is-selected {
+  background-color: #555 !important;
+  color: #ffffff !important;
+}
