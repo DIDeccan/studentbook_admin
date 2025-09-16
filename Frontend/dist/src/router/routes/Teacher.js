@@ -9,4 +9,4 @@ const TeacherRoutes = [
   }
 ]
 
-export default TeacherRoutes
+export default TeacherRoutes;

@@ -1,78 +1,160 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserLoginDetails } from "../../../redux/studentSlice";
+import { Spinner } from "reactstrap";
 
-const SampleUserTable = () =>{
-    const users = [
-    {
-        name: "John Doe",
-        email:"john@example.com",
-        loginTime:"09:00 AM",
-        logoutTime:"05:00 PM",
-        ip:"192.168.1.10",
-        status:"Active",
-    },
-    {
-        name:"Jane Smith",
-        email:"Jane@example.com",
-        loginTime: "09:30 AM",
-        logoutTime: "05:30 PM",
-        ip: "192.168.1.11",
-        status: "Inactive",
-    },
-    {
-      name: "Johnson",
-      email: "Johnson@example.com",
-      loginTime: "08:45 AM",
-      logoutTime: "04:45 PM",
-      ip: "192.168.1.12",
-      status: "Active",
-    },
-    {
-        name:"Smith",
-        email:"Smith@example.com",
-        loginTime: "09:00 AM",
-        logoutTime: "05:00 PM",
-        ip: "192.168.1.13",
-        status: "Inactive",
-    },
-    {
-      name: "Bob",
-      email: "bob@example.com",
-      loginTime: "08:30 AM",
-      logoutTime: "04:30 PM",
-      ip: "192.168.1.14",
-      status: "Active",
-    },
-    ];
-    return(
-        <div className="table-responsive">
-          <table className='table table bordered table-striped'>
-            <thead className='table-light'>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Login Time</th>
-                <th>Logout Time</th>
-                <th>IP</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-                {users.map((user, index) => (
-                    <tr key={index}>
-                       <td>{user.name}</td>
-                       <td>{user.email}</td>
-                       <td>{user.loginTime}</td>
-                       <td>{user.logoutTime}</td>
-                       <td>{user.ip}</td>
-                       <td className={user.status === "Active" ? "text-success" : "text-danger"}>
-                        {user.status}
-                       </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-        </div>
+
+
+const LoginDetails = () => {
+  const dispatch = useDispatch();
+  const { userLogins, userLoginLoading, userLoginError, fetched } = useSelector(
+    (state) => state.students
+  );
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10; // 🔹 10 per page
+
+  useEffect(() => {
+    if (!fetched) {
+      dispatch(fetchUserLoginDetails());
+    }
+  }, [dispatch, fetched]);
+
+  // 🔹 Filtered data
+  const filteredUsers = userLogins.filter((user) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      user.name?.toLowerCase().includes(term) ||
+      user.email?.toLowerCase().includes(term) ||
+      user.status?.toLowerCase().includes(term)
     );
+  });
+
+  // 🔹 Pagination
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const startIndex = (currentPage - 1) * usersPerPage;
+  const currentUsers = filteredUsers.slice(startIndex, startIndex + usersPerPage);
+
+  if (userLoginLoading)
+    return (
+      <div
+        style={{
+          minHeight: "300px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        className="w-100"
+      >
+        <Spinner color="primary" style={{ width: "3rem", height: "3rem" }} />
+      </div>
+    );
+
+  // 🔹 Error
+  if (userLoginError) {
+    return <p className="text-danger text-center">Error: {userLoginError}</p>;
+  }
+
+  return (
+    <div className="table-responsive p-1 mt-1">
+      <div className="d-flex justify-content-between align-items-center mb-1">
+        <h5 className="mb-1 fs-4 fw-bold mt-1">User Details</h5>
+        <input
+          type="text"
+          placeholder="Search by name, email, status..."
+          className="form-control w-25"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
+
+      {/* Table */}
+     <table className="table  table-bordered text-center table-hover custom-table">
+  <thead className="table-light">
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Last Login</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {currentUsers.length > 0 ? (
+      currentUsers.map((user, index) => (
+        <tr key={index}>
+          <td>{user.name || "N/A"}</td>
+          <td>{user.email || "N/A"}</td>
+          <td>
+            {user.login_time
+              ? new Date(user.login_time).toLocaleString()
+              : "N/A"}
+          </td>
+          <td>
+            {user.status === "Active" ? (
+              <span className="badge rounded-pill bg-light-success">Active</span>
+            ) : (
+              <span className="badge rounded-pill bg-light-danger">Inactive</span>
+            )}
+          </td>
+        </tr>
+      ))
+    ) : (
+      <tr>
+        <td colSpan="4">No users found</td>
+      </tr>
+    )}
+  </tbody>
+</table>
+
+
+      {/* Professional Pagination */}
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-between align-items-center mt-2">
+          <small className="text-muted">
+            Showing {startIndex + 1} -{" "}
+            {Math.min(startIndex + usersPerPage, filteredUsers.length)} of{" "}
+            {filteredUsers.length} users
+          </small>
+
+          <nav>
+            <ul className="pagination mb-1">
+              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                >
+                  Previous
+                </button>
+              </li>
+              <li className="page-item disabled">
+                <span className="page-link">
+                  Page {currentPage} of {totalPages}
+                </span>
+              </li>
+              <li
+                className={`page-item ${
+                  currentPage === totalPages ? "disabled" : ""
+                }`}
+              >
+                <button
+                  className="page-link"
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                >
+                  Next
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
+    </div>
+  );
 };
 
-export default SampleUserTable;
+export default LoginDetails;

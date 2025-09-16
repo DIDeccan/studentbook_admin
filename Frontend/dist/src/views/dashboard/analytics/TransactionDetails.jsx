@@ -1,96 +1,88 @@
-import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchLastTransactions } from "../../../redux/studentSlice";
+import { Spinner } from 'reactstrap';
 
 const TransactionDetails = () => {
-  const transactions = [
-    { 
-      id: 1,
-      cardType: "visa",
-      cardNumber: "4230", 
-      date: "17 Mar 2022", 
-      status: "Verified", 
-      amount: "+$1,678" 
-    },
-    { 
-      id: 2, 
-      cardType: "mastercard", 
-      cardNumber: "5578", 
-      date: "12 Feb 2022", 
-      status: "Rejected", 
-      amount: "-$839" 
-    },
-    { 
-      id: 3, 
-      cardType: "amex", 
-      cardNumber: "4567", 
-      date: "28 Feb 2022", 
-      status: "Verified", 
-      amount: "+$435" 
-    },
-    { 
-      id: 4, 
-      cardType: "visa", 
-      cardNumber: "5699", 
-      date: "8 Jan 2022", 
-      status: "Pending", 
-      amount: "+$2,345" 
-    },
-    { 
-      id: 5, 
-      cardType: "visa", 
-      cardNumber: "5699", 
-      date: "8 Jan 2022", 
-      status: "Rejected", 
-      amount: "-$234" 
-    },
-  ];
+  const dispatch = useDispatch();
+  const { transactions, txnLoading, txnError } = useSelector(state => state.students);
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "Verified":
-        return <span className="badge bg-success">{status}</span>;
-      case "Rejected":
-        return <span className="badge bg-danger">{status}</span>;
-      case "Pending":
-        return <span className="badge bg-secondary">{status}</span>;
-      default:
-        return <span className="badge bg-light text-dark">{status}</span>;
+  useEffect(() => {
+    if (transactions.length === 0) {
+      dispatch(fetchLastTransactions());
     }
-  };
+  }, [dispatch, transactions.length]);
+
+  if (txnLoading)
+  return (
+    <div
+      style={{
+        minHeight: "300px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+      className="w-100"
+    >
+      <Spinner color="primary" style={{ width: "3rem", height: "3rem" }} />
+    </div>
+  );
+
+
+  if (txnError) return <p style={{ color: "red" }}>Error: {txnError}</p>;
 
   return (
-    <table className="table mb-0 align-middle">
-      <thead className="table-light">
-        <tr>
-          <th>CARD</th>
-          <th>DATE</th>
-          <th>STATUS</th>
-          <th>TREND</th>
-        </tr>
-      </thead>
-      <tbody>
-        {transactions.map((tx) => (
-          <tr key={tx.id}>
-            <td className="align-middle">
-              <div className="d-flex align-items-center">
-                <span className="ms-2 me-2">💳</span>*{tx.cardNumber}
-              </div>
-              <small className="text-muted">Credit</small>
-            </td>
-            <td className="align-middle">
-              <div>Sent</div>
-              <small className="text-muted">{tx.date}</small>
-            </td>
-            <td className="align-middle">
-              {getStatusBadge(tx.status)}
-            </td>
-            <td className={tx.amount.startsWith("-") ? "text-danger" : "text-success"}>
-              {tx.amount}
-            </td>
+    <div className="table-responsive p-1 mt-2 ">
+      <h5 className="mb-2 fs-4 fw-bold">Last Transactions</h5>
+      <table className="table table-bordered text-center table-hover custom-table">
+        <thead className="table-light">
+          <tr>
+            <th>Transaction ID</th>
+            <th>User Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Class</th>
+            <th>Status</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Payment Mode</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {transactions.map((txn, index) => (
+            <tr key={index}>
+              <td>{txn.transaction_id || "N/A"}</td>
+              <td>{txn.user_name}</td>
+              <td>{txn.user_email}</td>
+              <td>{txn.student_phone}</td>
+              <td>{txn.class_name}</td>
+                <td>
+                {txn.status === "completed" ? (
+                    <span className="badge rounded-pill bg-light-success">
+                      Completed
+                    </span>
+                ) : txn.status === "failed" ? (
+                    <span className="badge rounded-pill bg-light-danger">
+                      Failed
+                    </span>
+                ) : txn.status === "pending" ? (
+                <span className="badge rounded-pill bg-light-warning ">
+                      Pending
+                   </span>
+                ) : (
+                  <span className="badge rounded-pill bg-light-secondary">
+                {txn.status}
+                </span>
+                )}
+                </td>
+              <td>₹{txn.amount}</td>
+              <td>{new Date(txn.date).toLocaleString()}</td>
+              <td>{txn.payment_mode || "Null"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

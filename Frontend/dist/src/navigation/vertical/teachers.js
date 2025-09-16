@@ -6,7 +6,7 @@ export default [
     id: 'teachers',
     title: 'Teacher Details',
     icon: <Home size={20} />,
-   navLink: '/teacherdetails'
+    navLink: '/teacherdetails'
   }
 ]
 

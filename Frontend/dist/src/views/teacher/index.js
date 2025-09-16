@@ -1,11 +1,19 @@
 import { Col } from 'reactstrap'
-import Teachertable from './teacherdetails'
+import StudentTable from './StudentTable';
+
+
+
 const TeacherDetails = () => {
     return (
-        <Col sm='12'>
-            <Teachertable />
+        <Col md="12">
+          <div className="card shadow-sm w-100 h-80">
+            <div className="card-body p-0">
+              <StudentTable/>
+            </div>
+          </div>
         </Col>
     )
 }
 
 export default TeacherDetails;
+

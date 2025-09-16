@@ -17,7 +17,7 @@
 /* Dark mode search input */
 .dark-layout .form-control {
   background-color: #2c2c2c !important;
-  color: #ffffff !important;              /* white text */
+  color: #ffffff !important;          
   border: 1px solid #555 !important;
 }
 
