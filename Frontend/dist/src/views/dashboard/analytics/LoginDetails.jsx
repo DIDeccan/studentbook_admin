@@ -3,8 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUserLoginDetails } from "../../../redux/studentSlice";
 import { Spinner } from "reactstrap";
 
-
-
 const LoginDetails = () => {
   const dispatch = useDispatch();
   const { userLogins, userLoginLoading, userLoginError, fetched } = useSelector(

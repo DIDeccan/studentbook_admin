@@ -1,7 +1,14 @@
 /* Table hover */
-.custom-table tbody tr:hover td {
-  color: #2b2a2a !important; 
+/* Table hover (light mode) */
+.light-layout .custom-table tbody tr:hover td {
+  color: #2b2a2a !important;  /* dark text */
 }
+
+/* Table hover (dark mode) */
+.dark-layout .custom-table tbody tr:hover td {
+  color: #121111 !important;  /* white text */
+}
+
 
 /* React-Select control box */
 .select__control {
