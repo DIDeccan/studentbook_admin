@@ -199,7 +199,6 @@ const PaymentDetails = () => {
               <span className="align-middle">Export CSV</span>
             </button>
           </div>
-
           <div className="card-body pt-0 pb-2 ps-3 pe-3">
             <div className="table-responsive">
               <table className="table table-bordered align-middle text-center table-hover custom-table">
