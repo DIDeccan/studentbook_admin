@@ -465,4 +465,20 @@ class ClassWIthSubjectsView(APIView):
             data=data
         )
  
- 
+
+class ClassListAPIView(APIView):
+    # permission_classes = [IsAuthenticated]
+    queryset = Class.objects.all()
+    def get(self, request, format=None):
+        classes = Class.objects.all().order_by('id')
+        serializer = ClassSerializer(classes, many=True)  
+        # OutstandingToken.objects.all().delete()
+        # BlacklistedToken.objects.all().delete()
+        return api_response(
+            message="Class List Data.",
+            message_type="success",
+            status_code=status.HTTP_200_OK,
+            data=serializer.data
+        )
+    
+

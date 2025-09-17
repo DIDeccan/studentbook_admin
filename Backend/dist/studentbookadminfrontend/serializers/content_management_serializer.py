@@ -39,5 +39,15 @@ class ChapterWithSubchaptersSerializer(serializers.ModelSerializer):
             Subchapter.objects.create(chapter=chapter, **sub)
  
         return chapter
+
  
+class ClassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Class
+        fields = ['id', 'name']
+
+
+ 
+
+
  

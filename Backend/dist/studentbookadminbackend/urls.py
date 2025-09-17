@@ -34,5 +34,6 @@ urlpatterns = [
 
     #content management URLS
 
-    path('content_management/',include('studentbookadminfrontend.urls.content_management_urls'))
+    path('content_management/',include('studentbookadminfrontend.urls.content_management_urls')),
+
 ]
