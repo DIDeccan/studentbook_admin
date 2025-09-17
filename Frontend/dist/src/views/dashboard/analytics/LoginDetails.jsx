@@ -108,8 +108,6 @@ const LoginDetails = () => {
   </tbody>
 </table>
 
-
-      {/* Professional Pagination */}
       {totalPages > 1 && (
         <div className="d-flex justify-content-between align-items-center mt-2">
           <small className="text-muted">
