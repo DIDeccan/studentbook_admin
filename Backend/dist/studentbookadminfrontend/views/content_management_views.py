@@ -248,7 +248,7 @@ class UploadVideoAPIView(APIView):
         try:
             student_class = Class.objects.get(id=class_id)
             subject = Subject.objects.get(id=subject_id)
-            semester = Semester.objects.get(id=semester_id)
+            semester = Semester.objects.get(semester_number=semester_id)
         except Exception as e:
             return api_response(str(e), "error", status.HTTP_400_BAD_REQUEST)
 
@@ -321,7 +321,7 @@ class UploadVideoAPIView(APIView):
             chapter=chapter,
             video_name=video_name,
             video_url=video_url,
-            video_duration=video_duration,
+            vedio_duration=video_duration,
         )
         # ----------------------------------------------------
 
@@ -335,7 +335,7 @@ class UploadVideoAPIView(APIView):
                 "subchapter": subchapter.subchapter,
                 "video_name": subchapter.video_name,
                 "video_url": subchapter.video_url,
-                "video_duration": subchapter.video_duration,
+                "video_duration": subchapter.vedio_duration,
             }
         )
 
@@ -360,7 +360,7 @@ class ChaptersWithSubchaptersAPI(APIView):
                     "subchapter": sub.subchapter,
                     "video_name": sub.video_name,
                     "video_url": sub.video_url,
-                    "video_duration": sub.video_duration,
+                    "video_duration": sub.vedio_duration,
 
 
                 }
