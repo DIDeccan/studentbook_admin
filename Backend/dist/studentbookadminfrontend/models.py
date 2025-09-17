@@ -4,7 +4,7 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.utils import timezone
 from datetime import timedelta
 from smart_selects.db_fields import ChainedForeignKey # If you're using this library  (#pip install django-smart-selects)
-
+from storages.backends.s3boto3 import S3Boto3Storage
 class Class(models.Model):
     name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=2000)
@@ -222,8 +222,10 @@ class Subject(models.Model):
     Stores subject name, optional icon, and the related class.
     """
     name = models.CharField(max_length=100)
-    icon = models.ImageField(upload_to='subject_icons/', blank=True, null=True)
+    content = models.TextField(null=True, blank=True)
+    image = models.ImageField(upload_to='subject_icons/', blank=True, null=True,storage=S3Boto3Storage())
     course = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='subjects')
+    icon = models.CharField(max_length=100, blank=True, null=True)
  
     def __str__(self):
         return self.name
@@ -314,7 +316,7 @@ class Subchapter(models.Model):
 class GeneralContent(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    image = models.FileField(upload_to='general_content_files/', blank=True, null=True)
+    image = models.FileField(upload_to='general_content_files/', blank=True, null=True,storage=S3Boto3Storage())
     
     class Meta:
         managed = False

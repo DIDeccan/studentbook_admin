@@ -23,6 +23,7 @@ class PriceCalculatorAPIView(APIView):
             original_price = float(request.data.get('original_price'))
             discount_percentage = float(request.data.get('discount_percentage'))
             
+            
             # Simple validation to check for valid numbers
             if original_price is None or discount_percentage is None or original_price < 0 or discount_percentage < 0:
                 return api_response(
