@@ -36,4 +36,12 @@ urlpatterns = [
 
     path('content_management/',include('studentbookadminfrontend.urls.content_management_urls')),
 
+    #class URLS
+    path("",include('studentbookadminfrontend.urls.class_urls')),
+
+    #calculator URLS
+    path('calculator/', include('studentbookadminfrontend.urls.calculator_urls')),
+
+
+
 ]
