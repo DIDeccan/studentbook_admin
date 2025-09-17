@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserDetails } from "../../redux/userSlice";
 import { Spinner } from "reactstrap";
-import '../../utility/hooks/useSkin';
 
 
 const StudentTable = () => {
@@ -30,9 +29,9 @@ const StudentTable = () => {
 
   // Pagination logic
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
- // startIndex = (2 - 1) * 10 = 10,
+  // startIndex = (2 - 1) * 10 = 10,
   const startIndex = (currentPage - 1) * usersPerPage;
-  //if startindex 0 and usersperpage is 10 then slice(0,10)=0-9
+  // if startindex 0 and usersperpage is 10 then slice(0,10)=0-9
   const currentUsers = filteredUsers.slice(startIndex, startIndex + usersPerPage);
 
  if (userLoading)
@@ -120,7 +119,7 @@ const StudentTable = () => {
             {Math.min(startIndex + usersPerPage, filteredUsers.length)} of{" "}
             {filteredUsers.length} users
           </small>
-
+          
           <nav>
             <ul className="pagination mb-2">
               <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
