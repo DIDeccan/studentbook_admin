@@ -293,10 +293,10 @@ class UploadVideoAPIView(APIView):
             clip = VideoFileClip(temp_path)
             duration_seconds = round(clip.duration)
             minutes, seconds = divmod(duration_seconds, 60)
-            vedio_duration = f"{minutes:02}:{seconds:02}"  # "MM:SS"
+            video_duration = f"{minutes:02}:{seconds:02}"  # "MM:SS"
             clip.close()
         except Exception as e:
-            vedio_duration = None
+            video_duration = None
             return api_response(str(e), "error", status.HTTP_400_BAD_REQUEST)
         finally:
             os.remove(temp_path)  # cleanup
@@ -321,7 +321,7 @@ class UploadVideoAPIView(APIView):
             chapter=chapter,
             video_name=video_name,
             video_url=video_url,
-            vedio_duration=vedio_duration,
+            video_duration=video_duration,
         )
         # ----------------------------------------------------
 
@@ -335,7 +335,7 @@ class UploadVideoAPIView(APIView):
                 "subchapter": subchapter.subchapter,
                 "video_name": subchapter.video_name,
                 "video_url": subchapter.video_url,
-                "vedio_duration": subchapter.vedio_duration,
+                "video_duration": subchapter.video_duration,
             }
         )
 
@@ -360,7 +360,7 @@ class ChaptersWithSubchaptersAPI(APIView):
                     "subchapter": sub.subchapter,
                     "video_name": sub.video_name,
                     "video_url": sub.video_url,
-                    "vedio_duration": sub.vedio_duration,
+                    "video_duration": sub.video_duration,
 
 
                 }
