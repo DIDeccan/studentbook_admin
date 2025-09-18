@@ -9,7 +9,10 @@
   },
   "payment":{
     "payDetails":"/payment-details/"
+  },
+  "calculator": {
+    "classList":"/content_management/class_list",
+    "PriceCalculator": "/calculator/calculate-price/"
   }
-
 
 }
