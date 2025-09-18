@@ -11,7 +11,7 @@
     "payDetails":"/payment-details/"
   },
   "calculator": {
-    "classList":"/content_management/class_list",
+    "classList":"/class_list",
     "PriceCalculator": "/calculator/calculate-price/"
   }
 
