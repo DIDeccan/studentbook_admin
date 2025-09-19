@@ -5,10 +5,16 @@ from django.utils import timezone
 from datetime import timedelta
 from smart_selects.db_fields import ChainedForeignKey # If you're using this library  (#pip install django-smart-selects)
 from storages.backends.s3boto3 import S3Boto3Storage
+
 class Class(models.Model):
     name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=2000)
     description = models.TextField(blank=True, null=True)
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # e.g. 10.00 for 10%
+    final_price = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
+    created_at = models.DateField(auto_now_add=True,null=True,blank=True)
+    updated_at = models.DateField(auto_now=True,null=True,blank=True)
+ 
     def __str__(self):
         return self.name
     class Meta:

@@ -27,10 +27,10 @@ urlpatterns = [
     path('dashboard/', include('studentbookadminfrontend.urls.dashboard_urls')),
 
     # User Details URLs
-    path('user-details/', include('studentbookadminfrontend.urls.userdetails_urls')),
+    path('user_details/', include('studentbookadminfrontend.urls.userdetails_urls')),
 
     # Payment Details URLs
-    path('payment-details/', include('studentbookadminfrontend.urls.paymentdetails_urls')),
+    path('payment_details/', include('studentbookadminfrontend.urls.paymentdetails_urls')),
 
     #content management URLS
 
@@ -40,7 +40,7 @@ urlpatterns = [
     path("",include('studentbookadminfrontend.urls.class_urls')),
 
     #calculator URLS
-    path('calculator/', include('studentbookadminfrontend.urls.calculator_urls')),
+    path('', include('studentbookadminfrontend.urls.calculator_urls')),
 
 
 
