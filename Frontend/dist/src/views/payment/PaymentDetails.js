@@ -109,7 +109,19 @@ const PaymentDetails = () => {
       <div className="container-fluid p-0">
   <div className="card shadow-sm w-100 mb-3">
     <div className="card-header pt-4 pb-0 ps-2 pe-3">
-      <h4 className="fw-bold fs-4 mb-3">Payment Details</h4> </div>
+      <h2
+       className="mb-2"
+       style={{
+       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+       fontWeight: 600,
+       fontSize: "1.75rem",
+       letterSpacing: "0.5px",
+     }}
+  >
+  Payment Details
+</h2>
+
+       </div>
         <div className="card-body pt-2 pb-2 ps-3 pe-3 ">
           <form onSubmit={handleSubmit}>
             <div className="row g-3 mb-4">

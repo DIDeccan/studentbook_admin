@@ -54,12 +54,22 @@ const StudentTable = () => {
 
   return (
     <div className="table-responsive p-1 mt-1">
-      <div className="d-flex justify-content-between align-items-center mb-2">
-        <h5 className="mb-1 fs-4 fw-bold fs-4 mt-1">User Login Details</h5>
+      <div className="d-flex justify-content-between align-items-center mb-1">
+          <h2
+            className="mb-0"
+            style={{
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+            fontWeight: 600,
+            fontSize: "1.50rem",
+            letterSpacing: "0.5px",
+         }}
+      >
+  User Login Details
+   </h2>
         <input
           type="text"
           placeholder="Search by name, email, phone, status..."
-          className="form-control w-25"
+          className="form-control w-25 "
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -121,7 +131,7 @@ const StudentTable = () => {
           </small>
           
           <nav>
-            <ul className="pagination mb-2">
+            <ul className="pagination mb-0">
               <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
                 <button
                   className="page-link"

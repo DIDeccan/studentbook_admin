@@ -1,14 +1,21 @@
-import React from 'react';
-import PriceCalculator from './PriceCalculator';
+import React from "react";
+import PriceCalculator from "./PriceCalculator";
 
 function CalculatorApp() {
   return (
-    <div className="px-2 py-4">
-      <div className="row justify-content-center">
-        <div className="col-12 col-md-4">
-          <div className="card shadow-md p-4">
-            <PriceCalculator />
-          </div>
+    <div className="px-3 py-2 d-flex justify-content-center align-items-center bg-light">
+      <div className="col-12">
+        <div
+          className="card shadow-lg border-0 rounded-4 p-4 price-calculator-card"
+          style={{
+            background: "#ffffff",
+            minHeight: "700px", 
+            width: "100%", 
+            margin: "0 auto",
+            padding: "2.5rem 3rem",
+          }}
+        >
+          <PriceCalculator />
         </div>
       </div>
     </div>
