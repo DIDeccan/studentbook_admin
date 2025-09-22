@@ -57,7 +57,17 @@ const LoginDetails = () => {
   return (
     <div className="table-responsive p-1 mt-1">
       <div className="d-flex justify-content-between align-items-center mb-1">
-        <h5 className="mb-1 fs-4 fw-bold mt-1">User Details</h5>
+        <h2
+       className="mb-0"
+       style={{
+       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+       fontWeight: 600,
+       fontSize: "1.50rem",
+       letterSpacing: "0.5px",
+     }}
+  >
+  User Details
+</h2>
         <input
           type="text"
           placeholder="Search by name, email, status..."
@@ -109,7 +119,7 @@ const LoginDetails = () => {
 </table>
 
       {totalPages > 1 && (
-        <div className="d-flex justify-content-between align-items-center mt-2">
+        <div className="d-flex justify-content-between align-items-center mt-1">
           <small className="text-muted">
             Showing {startIndex + 1} -{" "}
             {Math.min(startIndex + usersPerPage, filteredUsers.length)} of{" "}
@@ -117,7 +127,7 @@ const LoginDetails = () => {
           </small>
 
           <nav>
-            <ul className="pagination mb-1">
+            <ul className="pagination mb-0">
               <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
                 <button
                   className="page-link"

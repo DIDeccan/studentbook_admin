@@ -1,117 +1,163 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setClassLevel,
+  setOriginalPrice,
+  setDiscount,
+  reset,
+  fetchCalculatePrice,
+  fetchClassList,
+} from "../../redux/calculatorSlice";
 
 const PriceCalculator = () => {
-  const [classLevel, setClassLevel] = useState('');
-  const [originalPrice, setOriginalPrice] = useState('');
-  const [discount, setDiscount] = useState('');
-  const [finalPrice, setFinalPrice] = useState(null);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const dispatch = useDispatch();
+  const {
+    classLevel,
+    classList,
+    originalPrice,
+    discount,
+    finalPrice,
+    error,
+    success,
+    loading,
+  } = useSelector((state) => state.calculator);
+
+  const [previewPrice, setPreviewPrice] = useState("");
+  const [warning, setWarning] = useState("");
 
   useEffect(() => {
-    if (originalPrice && discount) {
-      const price = parseFloat(originalPrice);
-      const discountPercent = parseFloat(discount);
-      if (!isNaN(price) && !isNaN(discountPercent)) {
-        const discountAmount = price * (discountPercent / 100);
-        const calculatedPrice = price - discountAmount;
-        setFinalPrice(calculatedPrice.toFixed(2));
-      } else {
-        setFinalPrice(null);
-      }
+    dispatch(fetchClassList());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const priceNum = parseFloat(originalPrice);
+    const discountNum = parseFloat(discount);
+
+    if (!isNaN(priceNum) && !isNaN(discountNum)) {
+      const calcPrice =
+        Math.round((priceNum - priceNum * (discountNum / 100) + Number.EPSILON) * 100) / 100;
+      setPreviewPrice(calcPrice.toFixed(2));
     } else {
-      setFinalPrice(null);
+      setPreviewPrice("");
     }
   }, [originalPrice, discount]);
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    if (!classLevel || !originalPrice || !discount || !finalPrice) {
-      setError('Please fill in all fields correctly.');
+    if (!classLevel || !originalPrice || !discount) {
+      setWarning("⚠ Please fill out all the fields.");
       return;
     }
+    setWarning("");
 
-    alert(
-      `Class: ${classLevel}\nOriginal Price: ₹${originalPrice}\nDiscount: ${discount}%\nFinal Price: ₹${finalPrice}`
+    dispatch(
+      fetchCalculatePrice({
+        class_id: parseInt(classLevel, 10), // now index
+        original_price: parseFloat(originalPrice),
+        discount_percentage: parseFloat(discount),
+        final_price: parseFloat(previewPrice),
+      })
     );
-
-    setSuccess('Data ready to be submitted!');
-
-    setClassLevel('');
-    setOriginalPrice('');
-    setDiscount('');
-    setFinalPrice(null);
   };
 
+  useEffect(() => {
+    if (success || error || warning) {
+      const timer = setTimeout(() => {
+        dispatch(reset());
+        setWarning("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, error, warning, dispatch]);
+
   return (
-    <div className="px-2">
-      <h2 className="mb-3 fw-bold text-center">Price Calculator</h2>
+    <div className="px-2 price-calculator">
+      <h2
+        className="mt-0 mb-2 text-center"
+        style={{
+          fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+          fontWeight: 700,
+          fontSize: "2.6rem",
+          letterSpacing: "0.5px",
+        }}
+      >
+        Price Calculator
+      </h2>
 
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      {(warning || success || error) && (
+        <div
+          className={`mx-auto mb-1 p-1 text-center fw-bold rounded ${
+            warning
+              ? "bg-light-warning text-dark"
+              : success
+              ? "bg-light-success text-white"
+              : "bg-light-danger text-white"
+          }`}
+          style={{ maxWidth: "600px" }}
+        >
+          {warning ||
+            (success ? "✅ Data submitted successfully!" : `❌ ${error}`)}
+        </div>
+      )}
 
-      <div style={{ maxWidth: '450px' }}>
-        <div className="mb-2">
-          <label className="form-label fw-bold">Class</label>
+      <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div className="mb-3 mt-1" style={{ maxWidth: "700px", width: "100%" }}>
+          <label className="form-label fs-4 fw-bold">Class</label>
           <select
-            className="form-select"
-            value={classLevel}
-            onChange={(e) => setClassLevel(e.target.value)}
+            className="form-select price-calculator-field"
+            value={classLevel || ""}
+            onChange={(e) => dispatch(setClassLevel(e.target.value))}
           >
             <option value="">Select Class</option>
-            {[6, 7, 8, 9, 10].map((cls) => (
-              <option key={cls} value={cls}>
-                Class {cls}
+            {classList.map((cls, index) => (
+              <option key={index} value={index + 1}>
+                {cls.class}
               </option>
             ))}
           </select>
         </div>
 
-        <div className="mb-2">
-          <label className="form-label fw-bold">Original Price (₹)</label>
+        <div className="mb-3" style={{ maxWidth: "700px", width: "100%" }}>
+          <label className="form-label fs-4 fw-bold">Original Price (₹)</label>
           <input
-            type="number"
-            className="form-control"
+            type="text"
+            className="form-control price-calculator-field"
             value={originalPrice}
-            onChange={(e) => setOriginalPrice(e.target.value)}
+            onChange={(e) => dispatch(setOriginalPrice(e.target.value))}
             placeholder="Enter original price"
-            min="0"
-            step="0.01"
           />
         </div>
 
-        <div className="mb-2">
-          <label className="form-label fw-bold">Discount (%)</label>
+        <div className="mb-3" style={{ maxWidth: "700px", width: "100%" }}>
+          <label className="form-label fs-4 fw-bold">Discount (%)</label>
           <input
-            type="number"
-            className="form-control"
+            type="text"
+            className="form-control price-calculator-field"
             value={discount}
-            onChange={(e) => setDiscount(e.target.value)}
+            onChange={(e) => dispatch(setDiscount(e.target.value))}
             placeholder="Enter discount percentage"
-            min="0"
-            max="100"
-            step="0.01"
           />
         </div>
 
-        <div className="mb-2">
-          <label className="form-label fw-bold">Final Price (₹)</label>
+        <div className="mb-3" style={{ maxWidth: "700px", width: "100%" }}>
+          <label className="form-label fs-4 fw-bold">Final Price (₹)</label>
           <input
-          type="text"
-          className="form-control price-calculator-input" 
-          value={finalPrice ? `₹${finalPrice}` : ''}
-          readOnly
-         placeholder="Final price will be calculated"
-         />
-
+            type="text"
+            className="form-control price-calculator-field"
+            value={previewPrice ? `₹${previewPrice}` : ""}
+            readOnly
+            placeholder="Final price will be shown"
+            style={{ backgroundColor: "#f9f9f9" }}
+          />
         </div>
-
-        <button type="button" onClick={handleSubmit} className="btn btn-primary w-100 mt-2">
-          Submit
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="btn btn-primary mb-0"
+          disabled={loading}
+          style={{ padding: "0.9rem", maxWidth: "300px", width: "100%" }}
+        >
+          {loading ? "Calculating..." : "Submit"}
         </button>
       </div>
     </div>

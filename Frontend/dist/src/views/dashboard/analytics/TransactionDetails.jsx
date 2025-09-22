@@ -33,7 +33,17 @@ const TransactionDetails = () => {
 
   return (
     <div className="table-responsive p-1 mt-2 ">
-      <h5 className="mb-2 fs-4 fw-bold">Last Transactions</h5>
+       <h2
+       className="mb-1"
+       style={{
+       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+       fontWeight: 600,
+       fontSize: "1.50rem",
+       letterSpacing: "0.5px",
+     }}
+  >
+  Last Transactions
+</h2>
       <table className="table table-bordered text-center table-hover custom-table">
         <thead className="table-light">
           <tr>

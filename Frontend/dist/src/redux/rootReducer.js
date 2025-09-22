@@ -5,6 +5,7 @@ import auth from './authentication';
 import students from './studentSlice'; 
 import user from './userSlice';
 import payments from './paymentSlice';
+import calculator from './calculatorSlice';
 
 const rootReducer = {
   auth,
@@ -13,6 +14,7 @@ const rootReducer = {
   students, 
   user,
   payments,
+  calculator,
 };
 
 export default rootReducer;
