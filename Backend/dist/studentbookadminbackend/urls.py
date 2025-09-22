@@ -40,8 +40,9 @@ urlpatterns = [
     path("",include('studentbookadminfrontend.urls.class_urls')),
 
     #calculator URLS
-    path('', include('studentbookadminfrontend.urls.calculator_urls')),
+    # path('', include('studentbookadminfrontend.urls.calculator_urls')),
 
+    path('',include('studentbookadminfrontend.urls.auth_urls')),
 
 
 ]
