@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'moviepy',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'smart_selects',
  
 ]
 
@@ -157,6 +158,7 @@ TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 
  
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+print("AWS_ACCESS_KEY_ID",AWS_ACCESS_KEY_ID)
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 print('AWS_SECRET_ACCESS_KEY',AWS_SECRET_ACCESS_KEY)
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
@@ -211,11 +213,7 @@ SIMPLE_JWT = {
 }
  
 
-# AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-# AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-# AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-# # AWS_REGION = "ap-south-1"
-# AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+
  
 
  

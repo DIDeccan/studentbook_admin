@@ -44,5 +44,8 @@ urlpatterns = [
 
     path('',include('studentbookadminfrontend.urls.auth_urls')),
 
+    path("chaining/", include("smart_selects.urls"))
+
 
 ]
+

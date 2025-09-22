@@ -9,6 +9,7 @@ from moviepy.editor import VideoFileClip  # Import VideoFileClip
 import tempfile
 import os
 from studentbookadminfrontend.models import Class, Subject, Semester, Chapter, Subchapter
+import urllib.parse
 
 
 
@@ -74,7 +75,8 @@ class UploadVideoAPIView(APIView):
             return api_response(f"Failed to get video duration: {str(e)}", "error", status.HTTP_400_BAD_REQUEST)
 
         # ------------------- Upload to S3 -------------------
-        s3_key = f"{student_class.name}/{subject.name}/{semester.semester_name}/{chapter_name}/{subchapter_number}_{video_name}/{video_file.name}"
+        s3_key = f"vedios/{student_class.name}/{subject.name}/{semester.semester_name}/{chapter_name}/{subchapter_number}_{video_name}/{video_file.name}"
+        encoded_key = urllib.parse.quote(s3_key)
         video_url = None
         print('AWS_ACCESS_KEY_ID',settings.AWS_ACCESS_KEY_ID)
         try:
@@ -85,7 +87,7 @@ class UploadVideoAPIView(APIView):
                 region_name=settings.AWS_S3_REGION_NAME,
             )
             s3.upload_file(temp_path, settings.AWS_STORAGE_BUCKET_NAME, s3_key)
-            video_url = f"{settings.MEDIA_URL}{s3_key}"
+            video_url = f"{settings.MEDIA_URL}{encoded_key}"
         except Exception as e:
             if temp_path and os.path.exists(temp_path):
                 os.remove(temp_path)

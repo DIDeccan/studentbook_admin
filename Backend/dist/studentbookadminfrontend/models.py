@@ -6,6 +6,7 @@ from datetime import timedelta
 from smart_selects.db_fields import ChainedForeignKey # If you're using this library  (#pip install django-smart-selects)
 from storages.backends.s3boto3 import S3Boto3Storage
 
+
 class Class(models.Model):
     name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=2000)
@@ -229,7 +230,7 @@ class Subject(models.Model):
     """
     name = models.CharField(max_length=100)
     content = models.TextField(null=True, blank=True)
-    image = models.ImageField(upload_to='subject_icons/', blank=True, null=True,storage=S3Boto3Storage())
+    image = models.ImageField(upload_to='images/subject_icons/', blank=True, null=True,storage=S3Boto3Storage())
     course = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='subjects')
     icon = models.CharField(max_length=100, blank=True, null=True)
  
@@ -280,24 +281,62 @@ class Chapter(models.Model):
         managed = False
         db_table = "studentbookfrontend_chapter"
 
+# class Subchapter(models.Model):
+#     subchapter = models.CharField(max_length=20)
+#     parent_subchapter = models.CharField(max_length=50, blank=True)
+#     course = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='subchapter')
+#     subject = ChainedForeignKey(Subject, chained_field="course",chained_model_field="course" ,on_delete=models.CASCADE, related_name="subchapter")
+#     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='subchapter')
+#     # semester = ChainedForeignKey(Semester,chained_field="subject",chained_model_field="subject", on_delete=models.CASCADE, related_name='subchapter')
+#     # chapter = ChainedForeignKey(Chapter, chained_field="subject",chained_model_field="subject" ,on_delete=models.CASCADE, related_name='subchapter')
+#     chapter = models.ForeignKey(Chapter, on_delete=models.SET_NULL, null=True, blank=True)
+#     video_name = models.CharField(max_length=255)
+#     video_url = models.URLField()   # final S3/CloudFront URL
+#     vedio_duration = models.CharField(max_length=50, blank=True, null=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+ 
+#     class Meta:
+#         indexes = [
+#             models.Index(fields=["course", "subject", "semester", "chapter", "subchapter"]),
+#         ]
+ 
+#     def save(self, *args, **kwargs):
+#         """
+#         Automatically set parent_subchapter:
+#         - If subchapter = "5.1.1" → parent = "5.1"
+#         - If subchapter = "5.1"   → parent = "5.1" (itself, since top-level)
+#         """
+#         if "." in self.subchapter:
+#             self.parent_subchapter = ".".join(self.subchapter.split(".")[:-1])
+#         else:
+#             self.parent_subchapter = self.subchapter
+#         super().save(*args, **kwargs)
+ 
+#     def __str__(self):
+#         return f"{self.video_name} (Class {self.course}, Subject {self.subject})"
+    
+#     class Meta:
+#         managed = False
+#         db_table = "studentbookfrontend_subchapter"
+
 class Subchapter(models.Model):
     subchapter = models.CharField(max_length=20)
     parent_subchapter = models.CharField(max_length=50, blank=True)
     course = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='subchapter')
     subject = ChainedForeignKey(Subject, chained_field="course",chained_model_field="course" ,on_delete=models.CASCADE, related_name="subchapter")
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='subchapter')
-    # semester = ChainedForeignKey(Semester,chained_field="subject",chained_model_field="subject", on_delete=models.CASCADE, related_name='subchapter')
-    # chapter = ChainedForeignKey(Chapter, chained_field="subject",chained_model_field="subject" ,on_delete=models.CASCADE, related_name='subchapter')
-    chapter = models.ForeignKey(Chapter, on_delete=models.SET_NULL, null=True, blank=True)
+    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, null=True, blank=True)
     video_name = models.CharField(max_length=255)
     video_url = models.URLField()   # final S3/CloudFront URL
-    vedio_duration = models.CharField(max_length=50, blank=True, null=True)
+    vedio_duration = models.CharField(max_length=50, blank=True, null=True)  # e.g. "15:30"
     created_at = models.DateTimeField(auto_now_add=True)
+ 
  
     class Meta:
         indexes = [
             models.Index(fields=["course", "subject", "semester", "chapter", "subchapter"]),
         ]
+        db_table = "studentbookfrontend_subchapter"
  
     def save(self, *args, **kwargs):
         """
@@ -313,16 +352,14 @@ class Subchapter(models.Model):
  
     def __str__(self):
         return f"{self.video_name} (Class {self.course}, Subject {self.subject})"
-    
-    class Meta:
-        managed = False
-        db_table = "studentbookfrontend_subchapter"
-
+ 
+   
+ 
 
 class GeneralContent(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    image = models.FileField(upload_to='general_content_files/', blank=True, null=True,storage=S3Boto3Storage())
+    image = models.FileField(upload_to='images/general_content_files/', blank=True, null=True,storage=S3Boto3Storage())
     
     class Meta:
         managed = False
