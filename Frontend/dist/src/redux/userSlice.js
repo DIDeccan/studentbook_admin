@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 // --- USER DETAILS ---
 export const fetchUserDetails = createAsyncThunk(
-  "students/fetchUserDetails",
+  "user/fetchUserDetails",
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_URL}${api.users.details}`);

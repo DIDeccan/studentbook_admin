@@ -8,6 +8,7 @@ import AuthenticationRoutes from './Authentication'
 import TeacherRoutes from './Teacher'
 import PaymentRoutes from './Payment'
 import CalculatorRoutes from './Calculator'
+import Contentupload from './Videoupload'
 
 // ** Layouts
 import BlankLayout from '@layouts/BlankLayout'
@@ -42,6 +43,7 @@ const Routes = [
   ...TeacherRoutes,
   ...PaymentRoutes,
   ...CalculatorRoutes,
+  ...Contentupload,
 ]
 
 const getRouteMeta = route => {

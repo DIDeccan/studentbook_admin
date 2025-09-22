@@ -1,18 +1,18 @@
 {
   "dashboard": {
-    "classDistribution": "/dashboard/class-distribution-pie-chart",
-    "lastTransactions": "/dashboard/last-transactions",
-    "LoginDetails": "/dashboard/user-login-details"
+    "classDistribution": "/dashboard/class_distribution_pie_chart",
+    "lastTransactions": "/dashboard/last_transactions",
+    "LoginDetails": "/dashboard/user_login_details"
   },
   "users":{
-    "details": "/user-details/"
+    "details": "/user_details/"
   },
   "payment":{
     "payDetails":"/payment-details/"
   },
   "calculator": {
-    "classList":"/class_list",
-    "PriceCalculator": "/calculator/calculate-price/"
+    "classList":"/classe_pricelist/",
+    "PriceCalculator": "/calculate_price/"
   }
 
 }

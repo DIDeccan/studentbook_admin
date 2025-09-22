@@ -1,4 +1,4 @@
- import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setClassLevel,
@@ -52,7 +52,7 @@ const PriceCalculator = () => {
 
     dispatch(
       fetchCalculatePrice({
-        class_id: parseInt(classLevel, 10),
+        class_id: parseInt(classLevel, 10), // now index
         original_price: parseFloat(originalPrice),
         discount_percentage: parseFloat(discount),
         final_price: parseFloat(previewPrice),
@@ -101,7 +101,7 @@ const PriceCalculator = () => {
       )}
 
       <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <div className="mb-3 mt-3" style={{ maxWidth: "700px", width: "100%" }}>
+        <div className="mb-3 mt-1" style={{ maxWidth: "700px", width: "100%" }}>
           <label className="form-label fs-4 fw-bold">Class</label>
           <select
             className="form-select price-calculator-field"
@@ -109,9 +109,9 @@ const PriceCalculator = () => {
             onChange={(e) => dispatch(setClassLevel(e.target.value))}
           >
             <option value="">Select Class</option>
-            {classList.map((cls) => (
-              <option key={cls.id} value={cls.id}>
-                {cls.name}
+            {classList.map((cls, index) => (
+              <option key={index} value={index + 1}>
+                {cls.class}
               </option>
             ))}
           </select>
@@ -150,11 +150,10 @@ const PriceCalculator = () => {
             style={{ backgroundColor: "#f9f9f9" }}
           />
         </div>
-
         <button
           type="button"
           onClick={handleSubmit}
-          className="btn btn-primary w-100 mt-2"
+          className="btn btn-primary mb-0"
           disabled={loading}
           style={{ padding: "0.9rem", maxWidth: "300px", width: "100%" }}
         >

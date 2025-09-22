@@ -9,9 +9,9 @@ export const fetchClassList = createAsyncThunk(
   "calculator/fetchClassList",
   async (_, { rejectWithValue }) => {
     try {
-      const url = `${API_URL}${api.calculator.classList}`;
+      const url = `${API_URL}${api.calculator.classList}`; // should point to /classe_pricelist/
       const response = await axios.get(url);
-      return response.data.data; 
+      return response.data.data.calculations; // ✅ extract calculations array
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -23,14 +23,14 @@ export const fetchCalculatePrice = createAsyncThunk(
   "calculator/fetchCalculatePrice",
   async ({ class_id, original_price, discount_percentage, final_price }, { rejectWithValue }) => {
     try {
-      const url = `${API_URL}${api.calculator.PriceCalculator}`;
+      const url = `${API_URL}${api.calculator.PriceCalculator}`; // should point to /calculator/calculate-price/
       const response = await axios.post(url, {
         class_id,
         original_price,
         discount_percentage,
-        final_price, 
+        final_price,
       });
-      return response.data; 
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -44,7 +44,7 @@ const calculatorSlice = createSlice({
     classList: [],
     originalPrice: "",
     discount: "",
-    finalPrice: null, 
+    finalPrice: null,
     loading: false,
     error: null,
     success: null,
@@ -71,9 +71,9 @@ const calculatorSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // --- class list ---
-     .addCase(fetchClassList.fulfilled, (state, action) => {
-      state.classList = action.payload || [];
-       })
+      .addCase(fetchClassList.fulfilled, (state, action) => {
+        state.classList = action.payload || [];
+      })
       // --- price calc ---
       .addCase(fetchCalculatePrice.pending, (state) => {
         state.loading = true;
@@ -83,8 +83,7 @@ const calculatorSlice = createSlice({
       .addCase(fetchCalculatePrice.fulfilled, (state, action) => {
         state.loading = false;
         state.finalPrice = action.meta.arg.final_price;
-        state.success =
-          action.payload.message || "Price calculated successfully!";
+        state.success = action.payload.message || "Price calculated successfully!";
       })
       .addCase(fetchCalculatePrice.rejected, (state, action) => {
         state.loading = false;

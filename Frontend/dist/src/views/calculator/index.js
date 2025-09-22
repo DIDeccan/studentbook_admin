@@ -3,13 +3,12 @@ import PriceCalculator from "./PriceCalculator";
 
 function CalculatorApp() {
   return (
-    <div className="px-3 py-2 d-flex justify-content-center align-items-center bg-light">
+    <div className="px-3 py-2 d-flex justify-content-center align-items-center">
       <div className="col-12">
         <div
-          className="card shadow-lg border-0 rounded-4 p-4 price-calculator-card"
+          className="card shadow-lg border-0 rounded-4 p-3 price-calculator-card"
           style={{
-            background: "#ffffff",
-            minHeight: "700px", 
+            minHeight: "600px", 
             width: "100%", 
             margin: "0 auto",
             padding: "2.5rem 3rem",
