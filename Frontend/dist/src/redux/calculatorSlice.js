@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import api from "../../api.json";
+import api from "../utility/api"; 
+import apiList from "../../api.json";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -9,8 +9,8 @@ export const fetchClassList = createAsyncThunk(
   "calculator/fetchClassList",
   async (_, { rejectWithValue }) => {
     try {
-      const url = `${API_URL}${api.calculator.classList}`; // should point to /classe_pricelist/
-      const response = await axios.get(url);
+      const url = `${API_URL}${apiList.calculator.classList}`; // should point to /classe_pricelist/
+      const response = await api.get(url);
       return response.data.data.calculations; // ✅ extract calculations array
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -23,8 +23,8 @@ export const fetchCalculatePrice = createAsyncThunk(
   "calculator/fetchCalculatePrice",
   async ({ class_id, original_price, discount_percentage, final_price }, { rejectWithValue }) => {
     try {
-      const url = `${API_URL}${api.calculator.PriceCalculator}`; // should point to /calculator/calculate-price/
-      const response = await axios.post(url, {
+      const url = `${API_URL}${apiList.calculator.PriceCalculator}`; // should point to /calculator/calculate-price/
+      const response = await api.post(url, {
         class_id,
         original_price,
         discount_percentage,

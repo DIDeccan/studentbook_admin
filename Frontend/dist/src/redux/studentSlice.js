@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import api from '../../api.json';
+import api from "../utility/api"; 
+import apiList from "../../api.json";
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -9,7 +10,7 @@ export const fetchStudentDistribution = createAsyncThunk(
   'students/fetchDistribution',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}${api.dashboard.classDistribution}`);
+      const response = await api.get(`${API_URL}${apiList.dashboard.classDistribution}`);
       const payload = response.data;
       if (Array.isArray(payload.data)) {
         const cleaned = payload.data.filter(
@@ -32,7 +33,7 @@ export const fetchLastTransactions = createAsyncThunk(
   'students/fetchLastTransactions',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}${api.dashboard.lastTransactions}`);
+      const response = await api.get(`${API_URL}${apiList.dashboard.lastTransactions}`);
       return Array.isArray(response.data.data) ? response.data.data : [];
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch transactions');
@@ -45,7 +46,7 @@ export const fetchUserLoginDetails = createAsyncThunk(
   'students/fetchUserLoginDetails',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}${api.dashboard.LoginDetails}`);
+      const response = await api.get(`${API_URL}${apiList.dashboard.LoginDetails}`);
       // Ensure we always return an array
       return Array.isArray(response.data.data) ? response.data.data : [];
     } catch (error) {

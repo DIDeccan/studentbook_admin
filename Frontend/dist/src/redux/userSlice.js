@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import api from "../../api.json";
+import api from "../utility/api"; 
+import apiList from "../../api.json";
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -9,7 +10,7 @@ export const fetchUserDetails = createAsyncThunk(
   "user/fetchUserDetails",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}${api.users.details}`);
+      const response = await api.get(`${API_URL}${apiList.users.details}`);
       // Backend returns { data: [...] }, so we extract it
       return Array.isArray(response.data.data) ? response.data.data : [];
     } catch (error) {

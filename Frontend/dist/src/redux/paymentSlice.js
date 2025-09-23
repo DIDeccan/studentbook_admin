@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import api from '../../api.json';
+import api from "../utility/api"; 
+import apiList from "../../api.json";
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -17,9 +18,9 @@ export const fetchPaymentDetails = createAsyncThunk(
       });
 
       const queryString = params.toString();
-      const url = `${API_URL}${api.payment.payDetails}${queryString ? '?' + queryString : ''}`;
+      const url = `${API_URL}${apiList.payment.payDetails}${queryString ? '?' + queryString : ''}`;
 
-      const response = await axios.get(url);
+      const response = await api.get(url);
       return response.data.data; 
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
