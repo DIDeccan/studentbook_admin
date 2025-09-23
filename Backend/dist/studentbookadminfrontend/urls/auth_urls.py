@@ -7,5 +7,7 @@ urlpatterns = [
     # path('admin_login/', AdminLoginAPIView.as_view()),
     path('login', CustomTokenObtainPairView.as_view()),
     path('logout', LogoutView.as_view()),
+    path('token_refresh', CustomTokenRefreshView.as_view()),
+ 
  
 ]
