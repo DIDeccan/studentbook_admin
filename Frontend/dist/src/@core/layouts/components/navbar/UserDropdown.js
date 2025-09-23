@@ -1,5 +1,5 @@
 // ** React Imports
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
 // ** Custom Components
@@ -10,7 +10,7 @@ import { isUserLoggedIn } from '@utils'
 
 // ** Store & Actions
 import { useDispatch } from 'react-redux'
-import { handleLogout } from '@store/authentication'
+// import { handleLogout } from '@store/authentication'
 
 // ** Third Party Components
 import { User, Mail, CheckSquare, MessageSquare, Settings, CreditCard, HelpCircle, Power } from 'react-feather'
@@ -20,10 +20,11 @@ import { UncontrolledDropdown, DropdownMenu, DropdownToggle, DropdownItem } from
 
 // ** Default Avatar Image
 import defaultAvatar from '@src/assets/images/portrait/small/avatar-s-11.jpg'
-
+import { logoutUser } from '../../../../redux/authentication'
 const UserDropdown = () => {
   // ** Store Vars
   const dispatch = useDispatch()
+    const navigate = useNavigate()
 
   // ** State
   const [userData, setUserData] = useState(null)
@@ -34,6 +35,14 @@ const UserDropdown = () => {
       setUserData(JSON.parse(localStorage.getItem('userData')))
     }
   }, [])
+   const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap() 
+      navigate('/login')
+    } catch (err) {
+      console.error('Logout failed:', err)
+    }
+  }
 
   //** Vars
   const userAvatar = (userData && userData.avatar) || defaultAvatar

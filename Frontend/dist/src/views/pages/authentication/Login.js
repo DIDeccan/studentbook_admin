@@ -4,16 +4,16 @@ import { Link, useNavigate } from 'react-router-dom'
 
 // ** Custom Hooks
 import { useSkin } from '@hooks/useSkin'
-import useJwt from '@src/auth/jwt/useJwt'
+// import useJwt from '@src/auth/jwt/useJwt'
 
 // ** Third Party Components
 import toast from 'react-hot-toast'
 import { useDispatch } from 'react-redux'
 import { useForm, Controller } from 'react-hook-form'
-import { Facebook, Twitter, Mail, GitHub, HelpCircle, Coffee, X } from 'react-feather'
+import { Facebook, Twitter, Mail, GitHub, HelpCircle, Coffee, X, Phone } from 'react-feather'
 
 // ** Actions
-import { handleLogin } from '@store/authentication'
+// import { handleLogin } from '@store/authentication'
 
 // ** Context
 import { AbilityContext } from '@src/utility/context/Can'
@@ -44,6 +44,8 @@ import {
 import illustrationsLight from '@src/assets/images/pages/login-v2.svg'
 import illustrationsDark from '@src/assets/images/pages/login-v2-dark.svg'
 
+import { loginUser } from '../../../redux/authentication'
+
 // ** Styles
 import '@styles/react/pages/page-authentication.scss'
 
@@ -65,9 +67,10 @@ const ToastContent = ({ t, name, role }) => {
 }
 
 const defaultValues = {
-  password: 'admin',
-  loginEmail: 'admin@demo.com'
-}
+  password: '1234', 
+  loginEmail: '9876543201'
+};
+
 
 const Login = () => {
   // ** Hooks
@@ -84,34 +87,45 @@ const Login = () => {
 
   const source = skin === 'dark' ? illustrationsDark : illustrationsLight
 
-  const onSubmit = data => {
-    if (Object.values(data).every(field => field.length > 0)) {
-      useJwt
-        .login({ email: data.loginEmail, password: data.password })
-        .then(res => {
-          const data = { ...res.data.userData, accessToken: res.data.accessToken, refreshToken: res.data.refreshToken }
-          dispatch(handleLogin(data))
-          ability.update(res.data.userData.ability)
-          navigate(getHomeRouteForLoggedInUser(data.role))
-          toast(t => (
-            <ToastContent t={t} role={data.role || 'admin'} name={data.fullName || data.username || 'John Doe'} />
-          ))
-        })
-        .catch(err => setError('loginEmail', {
-            type: 'manual',
-            message: err.response.data.error
-          })
-        )
-    } else {
-      for (const key in data) {
-        if (data[key].length === 0) {
-          setError(key, {
-            type: 'manual'
-          })
-        }
-      }
+const onSubmit = (data) => {
+  // Show what we’re sending
+  console.log('[Login.js] Form data:', data);
+
+  if (!Object.values(data).every(field => field.length > 0)) {
+    for (const key in data) {
+      if (!data[key]) setError(key, { type: 'manual', message: 'This field is required' });
     }
+    return;
   }
+
+  const creds = { phone_number: data.loginEmail, password: data.password };
+
+  // Show the payload before sending
+  console.log('[Login.js] Payload to API:', creds);
+
+  dispatch(loginUser(creds))
+    .unwrap()
+    .then(res => {
+      console.log('[Login.js] Login success response:', res);
+      if (res?.access) {
+        navigate(getHomeRouteForLoggedInUser(res.role));
+        toast(t => (
+          <ToastContent
+            t={t}
+            role={res.user_type}
+            name={res.username || 'User'}
+          />
+        ));
+      } else {
+        setError('loginEmail', { type: 'manual', message: 'Login failed: No access token' });
+      }
+    })
+    .catch(err => {
+      console.error('[Login.js] Login error:', err);
+      const errorMessage = err?.message || (typeof err === 'string' ? err : 'Login failed');
+      setError('loginEmail', { type: 'manual', message: errorMessage });
+    });
+};
 
   return (
     <div className='auth-wrapper auth-cover'>
@@ -178,33 +192,11 @@ const Login = () => {
               Welcome to Student Book! 👋
             </CardTitle>
             <CardText className='mb-2'>Please sign-in to your account and start the adventure</CardText>
-            <Alert color='primary'>
-              <div className='alert-body font-small-2'>
-                <p>
-                  <small className='me-50'>
-                    <span className='fw-bold'>Admin:</span> admin@demo.com | admin
-                  </small>
-                </p>
-                <p>
-                  <small className='me-50'>
-                    <span className='fw-bold'>Client:</span> client@demo.com | client
-                  </small>
-                </p>
-              </div>
-              <HelpCircle
-                id='login-tip'
-                className='position-absolute'
-                size={18}
-                style={{ top: '10px', right: '10px' }}
-              />
-              <UncontrolledTooltip target='login-tip' placement='left'>
-                This is just for ACL demo purpose.
-              </UncontrolledTooltip>
-            </Alert>
+        
             <Form className='auth-login-form mt-2' onSubmit={handleSubmit(onSubmit)}>
               <div className='mb-1'>
                 <Label className='form-label' for='login-email'>
-                  Email
+                  Email or Phone
                 </Label>
                 <Controller
                   id='loginEmail'
@@ -213,8 +205,8 @@ const Login = () => {
                   render={({ field }) => (
                     <Input
                       autoFocus
-                      type='email'
-                      placeholder='john@example.com'
+                      type=''
+                      placeholder='Enter your email or phone number'
                       invalid={errors.loginEmail && true}
                       {...field}
                     />

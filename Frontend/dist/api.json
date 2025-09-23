@@ -1,5 +1,10 @@
 {
-  "dashboard": {
+  "auth": {
+        "login": "/login",
+         "logout": "/logout",
+          "refreshToken": "/token_refresh"
+  },
+    "dashboard": {
     "classDistribution": "/dashboard/class_distribution_pie_chart",
     "lastTransactions": "/dashboard/last_transactions",
     "LoginDetails": "/dashboard/user_login_details"

@@ -23,17 +23,14 @@ const PrivateRoute = ({ children, route }) => {
       resource = route.meta.resource
       restrictedRoute = route.meta.restricted
     }
-    // if (!user) {
-    //   return <Navigate to='/login' />
-    // }
+    if (!user) {
+      return <Navigate to='/login' />
+    }
     if (user && restrictedRoute) {
       return <Navigate to='/' />
     }
     if (user && restrictedRoute && user.role === 'client') {
       return <Navigate to='/access-control' />
-    }
-    if (user && !ability.can(action || 'read', resource)) {
-      return <Navigate to='/misc/not-authorized' replace />
     }
   }
 
