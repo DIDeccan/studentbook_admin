@@ -33,7 +33,7 @@ const StudentPieChart = () => {
   );
 
 
-  if (pieError) return <p className="text-danger text-center">Error: {userError}</p>;
+  if (pieError) return <p className="text-danger text-center">Error: {pieError}</p>;
 
   const chartData = {
     labels,

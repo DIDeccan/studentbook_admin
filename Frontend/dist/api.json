@@ -8,7 +8,7 @@
     "details": "/user_details/"
   },
   "payment":{
-    "payDetails":"/payment-details/"
+    "payDetails":"/payment_details/"
   },
   "calculator": {
     "classList":"/classe_pricelist/",

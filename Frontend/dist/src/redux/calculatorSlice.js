@@ -9,9 +9,9 @@ export const fetchClassList = createAsyncThunk(
   "calculator/fetchClassList",
   async (_, { rejectWithValue }) => {
     try {
-      const url = `${API_URL}${api.calculator.classList}`; // should point to /classe_pricelist/
+      const url = `${API_URL}${api.calculator.classList}`; 
       const response = await axios.get(url);
-      return response.data.data.calculations; // ✅ extract calculations array
+      return response.data.data.calculations; 
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -23,7 +23,7 @@ export const fetchCalculatePrice = createAsyncThunk(
   "calculator/fetchCalculatePrice",
   async ({ class_id, original_price, discount_percentage, final_price }, { rejectWithValue }) => {
     try {
-      const url = `${API_URL}${api.calculator.PriceCalculator}`; // should point to /calculator/calculate-price/
+      const url = `${API_URL}${api.calculator.PriceCalculator}`; 
       const response = await axios.post(url, {
         class_id,
         original_price,
