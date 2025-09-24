@@ -53,3 +53,7 @@ class PaymentDetailsAPIView(APIView):
             "payments": payment_data_list
         }
         return api_response("Payment details fetched successfully", "success", status.HTTP_200_OK, data=final_data)
+    
+
+
+    

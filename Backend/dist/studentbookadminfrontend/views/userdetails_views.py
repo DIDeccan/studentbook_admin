@@ -128,12 +128,17 @@ class EditUserAPIView(APIView):
 
 class SuspendUserAPIView(APIView):
     def post(self, request, pk, format=None):
+        is_active = request.data.get("is_active", False)
         student = get_object_or_404(Student, pk=pk)
 
-        if student.is_active == False:
-            student.is_active = True
-        elif student.is_active == True:
-            student.is_active = False
+
+
+        # if student.is_active == False:
+        #     student.is_active = True
+        # elif student.is_active == True:
+        #     student.is_active = False
+
+        student.is_active = is_active
         
 
         student.save()
@@ -144,12 +149,20 @@ class SuspendUserAPIView(APIView):
             'email': student.email,
             'is_active': student.is_active
         }
-        return api_response(
-            message="User suspended successfully",
-            message_type="success",
-            status_code=status.HTTP_200_OK,
-            data=suspended_student_data
-        )
+        if student.is_active == False:
+            return api_response(
+                message="User suspended successfully",
+                message_type="success",
+                status_code=status.HTTP_200_OK,
+                data=suspended_student_data
+            )
+        elif student.is_active == True:
+            return api_response(
+                message="User Activated successfully",
+                message_type="success",
+                status_code=status.HTTP_200_OK,
+                data=suspended_student_data
+            )
 
 class DeleteUserAPIView(APIView):
     def delete(self, request, pk, format=None):

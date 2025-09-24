@@ -7,6 +7,7 @@ from smart_selects.db_fields import ChainedForeignKey # If you're using this lib
 from storages.backends.s3boto3 import S3Boto3Storage
 
 
+
 class Class(models.Model):
     name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=2000)
@@ -356,19 +357,42 @@ class Subchapter(models.Model):
    
  
 
-class GeneralContent(models.Model):
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    image = models.FileField(upload_to='images/general_content_files/', blank=True, null=True,storage=S3Boto3Storage())
+# class GeneralContent(models.Model):
+#     title = models.CharField(max_length=255)
+#     description = models.TextField(blank=True, null=True)
+#     image = models.FileField(upload_to='images/general_content_files/', blank=True, null=True,storage=S3Boto3Storage())
+#     tumbnail_image = models.FileField(upload_to='images/subchapter_thumbnails/', blank=True, null=True)
+
+#     class Meta:
+#         managed = False
+#         db_table = 'studentbookfrontend_generalcontent'
     
-    class Meta:
-        managed = False
-        db_table = 'studentbookfrontend_generalcontent'
-    
-    def __str__(self):
-        return self.title 
+#     def __str__(self):
+#         return self.title 
     
 
+class GeneralContentVideo(models.Model):
+    "General videos linked to MainContent (e.g., Yoga, Sports, GK)"
+    video_name = models.CharField(max_length=255)
+    subtitle = models.CharField(max_length=255, blank=True, null=True)
+    main_content = models.ForeignKey(
+        MainContent,
+        on_delete=models.CASCADE,
+        related_name="videos",
+        # limit_choices_to=~models.Q(title__iexact="My Subjects")  # exclude My Subjects
+    )
+    discription = models.TextField(blank=True, null=True)
+    video_url = models.URLField()
+
+    class Meta:
+        managed = False
+        db_table = 'studentbookfrontend_generalcontentVideo'
+ 
+    def __str__(self):
+        return f"{self.video_name} - {self.main_content.title}"
+ 
+ 
+ 
 
 
 

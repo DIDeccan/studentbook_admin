@@ -48,11 +48,13 @@ def api_response(message, message_type, status_code, data=None):
         status=status_code,
     )
 
+
+
 class ClassListAPIView(APIView):
 
     def get(self, request):
         # Get all class objects
-        queryset = Class.objects.all()
+        queryset = Class.objects.all().order_by('id')
         # Serialize the queryset
         serializer = ClassSerializer(queryset, many=True)
         return api_response(
@@ -227,3 +229,8 @@ class StudentOverviewAPIView(APIView):
             status_code=status.HTTP_200_OK,
             data=overview_data
         )
+    
+
+
+
+
