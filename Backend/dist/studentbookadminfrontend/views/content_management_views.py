@@ -527,9 +527,7 @@ class ChaptersWithSubchaptersAPI(APIView):
         return Response(data, status=200)
 
  
-
-
-# class ChapterVideosAPIView(APIView):
+class ChapterVideosAPIView(APIView):
     def get(self, request, class_id, subject_id, semester, chapter):
         # Fetch videos that match given filters
         videos = Subchapter.objects.filter(
@@ -617,6 +615,102 @@ class ClassListAPIView(APIView):
             data=serializer.data
         )
     
+# class GeneralContentVideoAPIView(APIView):
+#     # GET: Get a list of all general videos or a single video
+#     def get(self, request, pk=None):
+#         if pk:
+#             try:
+#                 video = GeneralContentVideo.objects.get(pk=pk)
+#                 data = {
+#                     "id": video.id,
+#                     "video_name": video.video_name,
+#                     "subtitle": video.subtitle,
+#                     "main_content_id": video.main_content.id,
+#                     "main_content_title": video.main_content.title,
+#                     "description": video.discription,
+#                     "video_url": video.video_url,
+#                 }
+#                 return api_response(
+#                     message="Video fetched successfully",
+#                     message_type="success",
+#                     status_code=status.HTTP_200_OK,
+#                     data={}
+#                 )
+#             # ("Video fetched successfully", "success", status.HTTP_200_OK, data)
+#             except GeneralContentVideo.DoesNotExist:
+#                 return api_response(
+#                     message="Video not found",
+#                     message_type="error",
+#                     status_code=status.HTTP_400_BAD_REQUEST,
+#                     data={}
+#                 )
+#             # ("Video not found", "error", status.HTTP_404_NOT_FOUND)
+#         else:
+#             videos = GeneralContentVideo.objects.all().order_by('video_name')
+#             data = [{
+#                 "id": v.id,
+#                 "video_name": v.video_name,
+#                 "main_content_title": v.main_content.title,
+#                 "video_url": v.video_url,
+#                 "subtitle": v.subtitle,
+#             } for v in videos]
+#             return api_response(
+#                 message="Videos fetched successfully",
+#                 message_type="success",
+#                 status_code=status.HTTP_200_OK,
+#                 data={}
+#                 # ("Videos fetched successfully", "success", status.HTTP_200_OK, data)
+#             )
+
+#     # POST: Create a new general video
+#     def post(self, request):
+#         video_name = request.data.get('video_name')
+#         subtitle = request.data.get('subtitle')
+#         main_content_id = request.data.get('main_content_id')
+#         description = request.data.get('discription') # Corrected from 'description' to 'discription'
+#         video_file = request.data.get('video_file')
+
+#         if not all([video_name, main_content_id, video_file]):
+#             return api_response(
+#                 message="Required fields (video_name, main_content_id, video_url) are missing",
+#                 message_type="error",
+#                 status_code=status.HTTP_400_BAD_REQUEST,
+#                 data={}
+#         # ("Required fields (video_name, main_content_id, video_url) are missing", "error", status.HTTP_400_BAD_REQUEST)
+#             )
+        
+#         try:
+#             main_content = MainContent.objects.get(id=main_content_id)
+#         except MainContent.DoesNotExist:
+#             return api_response(
+#                 message="MainContent with this ID does not exist",
+#                 message_type="error",
+#                 status_code=status.HTTP_404_NOT_FOUND,
+#                 data={}
+#                 # "MainContent with this ID does not exist", "error", status.HTTP_404_NOT_FOUND
+#             )
+
+#         video = GeneralContentVideo.objects.create(
+#             video_name=video_name,
+#             subtitle=subtitle,
+#             main_content=main_content,
+#             discription=description,
+#             video_file=video_file,
+#         )
+#         data = {
+#             "id": video.id,
+#             "video_name": video.video_name,
+#             "video_url": video.video_url,
+#         }
+#         return api_response(
+#             message="Video created successfully",
+#             message_type="error",
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             data={}
+#         )
+#     # ("Video created successfully", "success", status.HTTP_201_CREATED, data)
+
+
 class GeneralContentVideoAPIView(APIView):
     # GET: Get a list of all general videos or a single video
     def get(self, request, pk=None):
@@ -633,20 +727,22 @@ class GeneralContentVideoAPIView(APIView):
                     "video_url": video.video_url,
                 }
                 return api_response(
-                    message="Video fetched successfully",
+                    # "Video fetched successfully", "success", status.HTTP_200_OK, data
+                    message="Video uploaded and saved successfully",
                     message_type="success",
-                    status_code=status.HTTP_200_OK,
-                    data={}
+                    status_code=status.HTTP_201_CREATED,
+                    data=data
                 )
-            # ("Video fetched successfully", "success", status.HTTP_200_OK, data)
+            
             except GeneralContentVideo.DoesNotExist:
                 return api_response(
+                    # "Video not found", "error", status.HTTP_404_NOT_FOUND
                     message="Video not found",
                     message_type="error",
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    data={}
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    data=data
                 )
-            # ("Video not found", "error", status.HTTP_404_NOT_FOUND)
+            
         else:
             videos = GeneralContentVideo.objects.all().order_by('video_name')
             data = [{
@@ -657,62 +753,107 @@ class GeneralContentVideoAPIView(APIView):
                 "subtitle": v.subtitle,
             } for v in videos]
             return api_response(
-                message="Videos fetched successfully",
-                message_type="success",
-                status_code=status.HTTP_200_OK,
-                data={}
-                # ("Videos fetched successfully", "success", status.HTTP_200_OK, data)
+                # "Videos fetched successfully", "success", status.HTTP_200_OK, data
+                    message="Video frtched successfully",
+                    message_type="success",
+                    status_code=status.HTTP_200_OK,
+                    data=data
             )
 
-    # POST: Create a new general video
+    # POST: Create a new general video with S3 upload
     def post(self, request):
+        video_file = request.FILES.get("video_file")
         video_name = request.data.get('video_name')
         subtitle = request.data.get('subtitle')
         main_content_id = request.data.get('main_content_id')
-        description = request.data.get('discription') # Corrected from 'description' to 'discription'
-        video_url = request.data.get('video_url')
+        description = request.data.get('description')
+ 
 
-        if not all([video_name, main_content_id, video_url]):
+        if not all([video_file, video_name, main_content_id]):
             return api_response(
-                message="Required fields (video_name, main_content_id, video_url) are missing",
+                # "Required fields (video_file, video_name, main_content_id) are missing", "error", status.HTTP_400_BAD_REQUEST
+                message="Required fields (video_file, video_name, main_content_id) are missing",
                 message_type="error",
-                status_code=status.HTTP_400_BAD_REQUEST,
-                data={}
-        # ("Required fields (video_name, main_content_id, video_url) are missing", "error", status.HTTP_400_BAD_REQUEST)
+                status_code=status.HTTP_400_BAD_REQUEST
             )
-        
+
         try:
             main_content = MainContent.objects.get(id=main_content_id)
         except MainContent.DoesNotExist:
             return api_response(
+                # "MainContent with this ID does not exist", "error", status.HTTP_404_NOT_FOUND
                 message="MainContent with this ID does not exist",
                 message_type="error",
-                status_code=status.HTTP_404_NOT_FOUND,
-                data={}
-                # "MainContent with this ID does not exist", "error", status.HTTP_404_NOT_FOUND
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        
+        temp_path = None
+        video_url = None
+        video_duration = None
+        
+        try:
+            # 1. Save video to a temporary file
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+                for chunk in video_file.chunks():
+                    temp_file.write(chunk)
+                temp_path = temp_file.name
+
+            # 2. Get video duration
+            clip = VideoFileClip(temp_path)
+            duration_seconds = round(clip.duration)
+            minutes, seconds = divmod(duration_seconds, 60)
+            video_duration = f"{minutes:02}:{seconds:02}"
+            clip.close()
+
+            # 3. Upload to S3
+            s3_key = f"vedios/{main_content.title}/{video_name}_{video_file.name}"
+            encoded_key = urllib.parse.quote(s3_key)
+            s3 = boto3.client(
+                "s3",
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                region_name=settings.AWS_S3_REGION_NAME,
+            )
+            s3.upload_file(temp_path, settings.AWS_STORAGE_BUCKET_NAME, s3_key)
+            video_url = f"{settings.MEDIA_URL}{encoded_key}"
+
+            # 4. Create the database record
+            video = GeneralContentVideo.objects.create(
+                video_name=video_name,
+                subtitle=subtitle,
+                main_content=main_content,
+                discription=description,
+                video_url=video_url,
+                vedio_duration = video_duration
+                # created_at = 
+                # Add a field for duration in the model if you need to save it
             )
 
-        video = GeneralContentVideo.objects.create(
-            video_name=video_name,
-            subtitle=subtitle,
-            main_content=main_content,
-            discription=description,
-            video_url=video_url,
-        )
-        data = {
-            "id": video.id,
-            "video_name": video.video_name,
-            "video_url": video.video_url,
-        }
-        return api_response(
-            message="Video created successfully",
-            message_type="error",
-            status_code=status.HTTP_404_NOT_FOUND,
-            data={}
-        )
-    # ("Video created successfully", "success", status.HTTP_201_CREATED, data)
-
-
+            data = {
+                "id": video.id,
+                "video_name": video.video_name,
+                "video_url": video.video_url,
+                "video_duration": video_duration,
+            }
+            return api_response(
+                # "Video uploaded and saved successfully", "success", status.HTTP_201_CREATED, data
+                message="Video uploaded and saved successfully",
+                message_type="success",
+                status_code=status.HTTP_201_CREATED,
+                data=data
+            )
+        
+        except Exception as e:
+            return api_response(
+                # f"An error occurred: {str(e)}", "error", status.HTTP_500_INTERNAL_SERVER_ERROR
+                message=f"An error occurred: {str(e)}",
+                message_type="errror",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        
+        finally:
+            if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path) # Cleanup temp file
 
 
 

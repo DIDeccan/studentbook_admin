@@ -331,6 +331,7 @@ class Subchapter(models.Model):
     video_url = models.URLField()   # final S3/CloudFront URL
     vedio_duration = models.CharField(max_length=50, blank=True, null=True)  # e.g. "15:30"
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
  
  
     class Meta:
@@ -353,14 +354,14 @@ class Subchapter(models.Model):
  
     def __str__(self):
         return f"{self.video_name} (Class {self.course}, Subject {self.subject})"
- 
-   
- 
+  
 
 # class GeneralContent(models.Model):
 #     title = models.CharField(max_length=255)
 #     description = models.TextField(blank=True, null=True)
 #     image = models.FileField(upload_to='images/general_content_files/', blank=True, null=True,storage=S3Boto3Storage())
+#     tumbnail_image = models.FileField(upload_to='images/subchapter_thumbnails/', blank=True, null=True)
+
 #     class Meta:
 #         managed = False
 #         db_table = 'studentbookfrontend_generalcontent'
@@ -399,10 +400,14 @@ class GeneralContentVideo(models.Model):
     )
     discription = models.TextField(blank=True, null=True)
     video_url = models.URLField()
+    vedio_duration = models.CharField(max_length=50, blank=True, null=True)  # e.g. "15:30"
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+ 
 
     class Meta:
         managed = False
-        db_table = 'studentbookfrontend_generalcontentVideo'
+        db_table = 'studentbookfrontend_generalcontentvideo'
  
     def __str__(self):
         return f"{self.video_name} - {self.main_content.title}"
