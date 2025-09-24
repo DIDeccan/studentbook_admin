@@ -9,7 +9,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
 const StudentPieChart = () => {
   const dispatch = useDispatch();
-  const { labels, data, pieLoading, pieError } = useSelector(state => state.students);
+  const { labels, data, pieLoading, pieError, userError } = useSelector(state => state.students);
 
   useEffect(() => {
     if (labels.length === 0) {
@@ -33,7 +33,7 @@ const StudentPieChart = () => {
   );
 
 
-  if (pieError) return <p className="text-danger text-center">Error: {userError}</p>;
+  if (pieError) return <p className="text-danger text-center">Error: {pieError}</p>;
 
   const chartData = {
     labels,

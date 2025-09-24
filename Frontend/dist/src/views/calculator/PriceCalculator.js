@@ -52,7 +52,7 @@ const PriceCalculator = () => {
 
     dispatch(
       fetchCalculatePrice({
-        class_id: parseInt(classLevel, 10), // now index
+        class_id: parseInt(classLevel, 10), 
         original_price: parseFloat(originalPrice),
         discount_percentage: parseFloat(discount),
         final_price: parseFloat(previewPrice),
@@ -96,7 +96,7 @@ const PriceCalculator = () => {
           style={{ maxWidth: "600px" }}
         >
           {warning ||
-            (success ? "✅ Data submitted successfully!" : `❌ ${error}`)}
+            (success ? "✅ Data Calculated successfully!" : `❌ ${error}`)}
         </div>
       )}
 
