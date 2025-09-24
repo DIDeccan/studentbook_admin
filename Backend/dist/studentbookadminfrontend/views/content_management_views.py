@@ -616,7 +616,6 @@ class ClassListAPIView(APIView):
             data=serializer.data
         )
     
-
 class GeneralContentVideoAPIView(APIView):
     # GET: Get a list of all general videos or a single video
     def get(self, request, pk=None):
@@ -651,7 +650,7 @@ class GeneralContentVideoAPIView(APIView):
         video_name = request.data.get('video_name')
         subtitle = request.data.get('subtitle')
         main_content_id = request.data.get('main_content_id')
-        description = request.data.get('description')
+        description = request.data.get('discription') # Corrected from 'description' to 'discription'
         video_url = request.data.get('video_url')
 
         if not all([video_name, main_content_id, video_url]):
@@ -675,56 +674,6 @@ class GeneralContentVideoAPIView(APIView):
             "video_url": video.video_url,
         }
         return api_response("Video created successfully", "success", status.HTTP_201_CREATED, data)
-
-    # PUT: Update an existing video
-    def put(self, request, pk):
-        try:
-            video = GeneralContentVideo.objects.get(pk=pk)
-        except GeneralContentVideo.DoesNotExist:
-            return api_response("Video not found", "error", status.HTTP_404_NOT_FOUND)
-
-        video_name = request.data.get('video_name')
-        subtitle = request.data.get('subtitle')
-        main_content_id = request.data.get('main_content_id')
-        description = request.data.get('description')
-        video_url = request.data.get('video_url')
-        
-        # Update fields if they are provided in the request
-        if video_name:
-            video.video_name = video_name
-        if subtitle is not None:
-            video.subtitle = subtitle
-        if main_content_id:
-            try:
-                main_content = MainContent.objects.get(id=main_content_id)
-                video.main_content = main_content
-            except MainContent.DoesNotExist:
-                return api_response("MainContent with this ID does not exist", "error", status.HTTP_404_NOT_FOUND)
-        if description is not None:
-            video.discription = description
-        if video_url:
-            video.video_url = video_url
-            
-        video.save()
-        data = {
-            "id": video.id,
-            "video_name": video.video_name,
-            "video_url": video.video_url,
-            "main_content_id": video.main_content.id,
-        }
-        return api_response("Video updated successfully", "success", status.HTTP_200_OK, data)
-
-    # DELETE: Delete a video
-    def delete(self, request, pk):
-        try:
-            video = GeneralContentVideo.objects.get(pk=pk)
-        except GeneralContentVideo.DoesNotExist:
-            return api_response("Video not found", "error", status.HTTP_404_NOT_FOUND)
-
-        video.delete()
-        return api_response("Video deleted successfully", "success", status.HTTP_204_NO_CONTENT)
-
-
 
 
 

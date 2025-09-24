@@ -361,8 +361,6 @@ class Subchapter(models.Model):
 #     title = models.CharField(max_length=255)
 #     description = models.TextField(blank=True, null=True)
 #     image = models.FileField(upload_to='images/general_content_files/', blank=True, null=True,storage=S3Boto3Storage())
-#     tumbnail_image = models.FileField(upload_to='images/subchapter_thumbnails/', blank=True, null=True)
-
 #     class Meta:
 #         managed = False
 #         db_table = 'studentbookfrontend_generalcontent'
@@ -370,6 +368,24 @@ class Subchapter(models.Model):
 #     def __str__(self):
 #         return self.title 
     
+class MainContent(models.Model):
+    """
+    Represents general content that can be associated with a Yoga, Sports, GK etc.
+    Stores content title, description, optional file attachment, and links to its related entities.
+    """
+    title = models.CharField(max_length=255)
+    sub_title = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    icon = models.FileField(upload_to='images/general_content_files/', blank=True, null=True, storage=S3Boto3Storage())
+   
+    class Meta:
+        managed = False
+        db_table = 'studentbookfrontend_maincontent'
+ 
+ 
+    def __str__(self):
+        return self.title
+
 
 class GeneralContentVideo(models.Model):
     "General videos linked to MainContent (e.g., Yoga, Sports, GK)"

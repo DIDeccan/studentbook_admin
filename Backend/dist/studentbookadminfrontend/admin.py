@@ -70,7 +70,7 @@ admin.site.register(Subject,SubjectAdmin)
 admin.site.register(Semester,SemesterAdmin)
 admin.site.register(Chapter,ChapterAdmin)
 admin.site.register(Subchapter,SubChapterAdmin)
-admin.site.register(GeneralContent,GeneralContentAdmin)
+admin.site.register(MainContent,GeneralContentAdmin)
  
  
 #student dashboard models registration
@@ -81,6 +81,10 @@ admin.site.register(GeneralContent,GeneralContentAdmin)
  
 # admin.site.register(VideoTrackingLog,VideoTrackingLogAdmin)
  
+class GeneralContentVideoAdmin(admin.ModelAdmin):
  
+    list_display = ['id','video_name','subtitle','main_content']
+ 
+    list_filter = ['main_content']
  
  
