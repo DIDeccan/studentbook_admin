@@ -479,6 +479,7 @@ class ChaptersWithSubchaptersAPI(APIView):
     def get(self, request, course_id, subject_id):
 
         chapters = Chapter.objects.filter(course_id=course_id, subject_id=subject_id).order_by("chapter_number")
+        tumbnail_image = models.FileField(upload_to='images/subchapter_thumbnails/', blank=True, null=True)
 
         data = []
  
@@ -631,9 +632,21 @@ class GeneralContentVideoAPIView(APIView):
                     "description": video.discription,
                     "video_url": video.video_url,
                 }
-                return api_response("Video fetched successfully", "success", status.HTTP_200_OK, data)
+                return api_response(
+                    message="Video fetched successfully",
+                    message_type="success",
+                    status_code=status.HTTP_200_OK,
+                    data={}
+                )
+            # ("Video fetched successfully", "success", status.HTTP_200_OK, data)
             except GeneralContentVideo.DoesNotExist:
-                return api_response("Video not found", "error", status.HTTP_404_NOT_FOUND)
+                return api_response(
+                    message="Video not found",
+                    message_type="error",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    data={}
+                )
+            # ("Video not found", "error", status.HTTP_404_NOT_FOUND)
         else:
             videos = GeneralContentVideo.objects.all().order_by('video_name')
             data = [{
@@ -643,7 +656,13 @@ class GeneralContentVideoAPIView(APIView):
                 "video_url": v.video_url,
                 "subtitle": v.subtitle,
             } for v in videos]
-            return api_response("Videos fetched successfully", "success", status.HTTP_200_OK, data)
+            return api_response(
+                message="Videos fetched successfully",
+                message_type="success",
+                status_code=status.HTTP_200_OK,
+                data={}
+                # ("Videos fetched successfully", "success", status.HTTP_200_OK, data)
+            )
 
     # POST: Create a new general video
     def post(self, request):
@@ -654,12 +673,24 @@ class GeneralContentVideoAPIView(APIView):
         video_url = request.data.get('video_url')
 
         if not all([video_name, main_content_id, video_url]):
-            return api_response("Required fields (video_name, main_content_id, video_url) are missing", "error", status.HTTP_400_BAD_REQUEST)
-
+            return api_response(
+                message="Required fields (video_name, main_content_id, video_url) are missing",
+                message_type="error",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                data={}
+        # ("Required fields (video_name, main_content_id, video_url) are missing", "error", status.HTTP_400_BAD_REQUEST)
+            )
+        
         try:
             main_content = MainContent.objects.get(id=main_content_id)
         except MainContent.DoesNotExist:
-            return api_response("MainContent with this ID does not exist", "error", status.HTTP_404_NOT_FOUND)
+            return api_response(
+                message="MainContent with this ID does not exist",
+                message_type="error",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
+                # "MainContent with this ID does not exist", "error", status.HTTP_404_NOT_FOUND
+            )
 
         video = GeneralContentVideo.objects.create(
             video_name=video_name,
@@ -673,7 +704,13 @@ class GeneralContentVideoAPIView(APIView):
             "video_name": video.video_name,
             "video_url": video.video_url,
         }
-        return api_response("Video created successfully", "success", status.HTTP_201_CREATED, data)
+        return api_response(
+            message="Video created successfully",
+            message_type="error",
+            status_code=status.HTTP_404_NOT_FOUND,
+            data={}
+        )
+    # ("Video created successfully", "success", status.HTTP_201_CREATED, data)
 
 
 

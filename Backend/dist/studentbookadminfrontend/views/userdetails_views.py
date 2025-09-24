@@ -206,33 +206,33 @@ class ResetPasswordAPIView(APIView):
 
 
 
-class SendOTPAPIView(APIView):
-    def post(self, request, format=None):
-        phone_number = request.data.get('phone_number')
+# class SendOTPAPIView(APIView):
+#     def post(self, request, format=None):
+#         phone_number = request.data.get('phone_number')
 
-        if not phone_number:
-            return api_response(
-                "Phone number is required.",
-                "error",
-                status.HTTP_400_BAD_REQUEST
-            )
+#         if not phone_number:
+#             return api_response(
+#                 "Phone number is required.",
+#                 "error",
+#                 status.HTTP_400_BAD_REQUEST
+#             )
         
-        # Generate a 6-digit OTP
-        otp = str(random.randint(100000, 999999))
+#         # Generate a 6-digit OTP
+#         otp = str(random.randint(100000, 999999))
         
-        # Store the OTP in our temporary storage
+#         # Store the OTP in our temporary storage
 
         
-        # --- Placeholder for sending SMS ---
-        # In a real application, you would integrate with an SMS service here.
-        # Example using a print statement for testing:
-        print(f"Sending OTP {otp} to phone number {phone_number}")
+#         # --- Placeholder for sending SMS ---
+#         # In a real application, you would integrate with an SMS service here.
+#         # Example using a print statement for testing:
+#         print(f"Sending OTP {otp} to phone number {phone_number}")
 
-        return api_response(
-            "OTP sent successfully.",
-            "success",
-            status.HTTP_200_OK
-        )
+#         return api_response(
+#             "OTP sent successfully.",
+#             "success",
+#             status.HTTP_200_OK
+#         )
     
 
 # In your studentbookadminfrontend/views/userdetails_views.py file
@@ -253,26 +253,34 @@ class VerifyAndUpdatePhoneAPIView(APIView):
             )
 
         # Retrieve the OTP from our temporary storage
-        
 
-        # If the OTP is correct, update the student's phone number
-        student.phone_number = phone_number
-        student.save()
-        
-        # Optional: Delete the OTP from storage to prevent reuse
-
+        if otp_received == student.otp:
+            # If the OTP is correct, update the student's phone number
+            student.phone_number = phone_number
+            student.save()
             
-        updated_student_data = {
-            'id': student.pk,
-            'first_name': student.first_name,
-            'last_name': student.last_name,
-            'phone_number': student.phone_number,
-            'is_active': student.is_active
-        }
+            # Optional: Delete the OTP from storage to prevent reuse
 
-        return api_response(
-            "Phone number updated successfully.",
-            "success",
-            status.HTTP_200_OK,
-            data=updated_student_data
-        )
+                
+            updated_student_data = {
+                'id': student.pk,
+                'first_name': student.first_name,
+                'last_name': student.last_name,
+                'phone_number': student.phone_number,
+                'is_active': student.is_active
+            }
+
+            return api_response(
+                "Phone number updated successfully.",
+                "success",
+                status.HTTP_200_OK,
+                data=updated_student_data
+            )
+        else:
+
+            return api_response(
+                "In Correct Otp.",
+                "error",
+                status.HTTP_200_OK,
+        
+            )
