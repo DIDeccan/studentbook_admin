@@ -167,6 +167,10 @@ AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
 # # This is the magic line 👇
 DEFAULT_FILE_STORAGE = os.getenv('DEFAULT_FILE_STORAGE')
 
+AWS_DEFAULT_ACL = "public-read"
+AWS_QUERYSTRING_AUTH = False  # prevents ?X-Amz-... being added
+
+
 MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/"
 
 

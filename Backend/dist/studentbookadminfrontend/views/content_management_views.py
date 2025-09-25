@@ -37,13 +37,16 @@ class UploadVideoAPIView(APIView):
         chapter_number = request.data.get("chapter_number")
         subchapter_number = request.data.get("subchapter")  # This was already correct
         video_name = request.data.get("video_name")
+        tumbnail_image = request.FILES.get("tumbnail_image")
+        subchapter_description = request.data.get("subchapter_description")  # 👈 Added
 
-        if not all([video_file, class_id, subject_id, semester_id, chapter_name, subchapter_number, video_name]):
+
+        if not all([video_file, class_id, subject_id, semester_id, chapter_name, subchapter_number, video_name,tumbnail_image]):
             return api_response("All fields are required.", "error", status.HTTP_400_BAD_REQUEST)
 
         try:
             student_class = Class.objects.get(id=class_id)
-            subject = Subject.objects.get(id=subject_id)
+            subject = Subject.objects.get(id=subject_id,course=class_id )
             semester = Semester.objects.get(semester_number=semester_id)
         except (Class.DoesNotExist, Subject.DoesNotExist, Semester.DoesNotExist) as e:
             return api_response(f"Object not found: {str(e)}", "error", status.HTTP_404_NOT_FOUND)
@@ -100,12 +103,17 @@ class UploadVideoAPIView(APIView):
         # ------------------- Get or Create Chapter -------------------
         try:
             chapter, created = Chapter.objects.get_or_create(
-                chapter_name=chapter_name,
+                # chapter_name=chapter_name,
+               
+                chapter_number=chapter_number,
                 course=student_class,
                 subject=subject,
                 semester=semester,
-                defaults={"chapter_number": chapter_number}
+                defaults={"chapter_name":chapter_name}
             )
+            if not created and chapter.chapter_name != chapter_name:
+                chapter.chapter_name = chapter_name
+                chapter.save()
         except Exception as e:
             return api_response(f"Failed to create/get chapter: {str(e)}", "error", status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -116,6 +124,9 @@ class UploadVideoAPIView(APIView):
                     "video_name": video_name,
                     "video_url": video_url,
                     "vedio_duration": video_duration,
+                    "tumbnail_image":tumbnail_image,
+                    "description": subchapter_description,  # 👈 Added
+
                 },
                 course=student_class,
                 subject=subject,
@@ -135,343 +146,18 @@ class UploadVideoAPIView(APIView):
                 "chapter": chapter.chapter_name,
                 "chapter_number": chapter.chapter_number,
                 "subchapter": subchapter.subchapter,
+                "subchapter_id":subchapter.id,
                 "video_name": subchapter.video_name,
                 "video_url": subchapter.video_url,
                 "video_duration": subchapter.vedio_duration,
+                "subchapter_description": subchapter.description,  # 👈 Added
+                "tumbnail_image":subchapter.tumbnail_image.url if subchapter.tumbnail_image else None
             }
         )
 
 
 
 
-# class UploadVideoAPIView(APIView):
-    def post(self, request):
-        video_file = request.FILES.get("video_file")   # Uploaded file
-        class_id = request.data.get("class_id")
-        subject_id = request.data.get("subject_id")
-        semester_id = request.data.get("semester")
-        chapter_id = request.data.get("chapter")
-        subchapter = request.data.get("subchapter")
-        video_name = request.data.get("video_name")
- 
-        if not video_file:
-            return api_response(
-            message="No file uploaded",
-            message_type="error",
-            status_code=status.HTTP_400_BAD_REQUEST,
-       
-        )
-        # Response({"error": "No file uploaded"}, status=400)
-        
-        if not all([class_id, subject_id, semester_id, chapter_id, subchapter, video_name]):
-            return api_response(
-                message="All fields are required.",
-                message_type="error",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        # Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            student_class = Class.objects.get(id=class_id)
-        except Class.DoesNotExist:
-            return api_response(
-                message="Invalid class ID",
-                message_type="error",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        # Response({"error": "Invalid class ID"}, status=400)
-
-        try:
-            subject = Subject.objects.get(id=subject_id)
-        except Subject.DoesNotExist:
-            return api_response(
-                message="Invalid subject ID",
-                message_type="error",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        # Response({"error": "Invalid subject ID"}, status=400)
-
-        try:
-            semester = Semester.objects.get(id=semester_id)
-        except Semester.DoesNotExist:
-            return api_response(
-                message="Invalid semester ID",
-                message_type="error",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        # Response({"error": "Invalid semester ID"}, status=400)
-
-        try:
-            chapter = Chapter.objects.get(id=chapter_id)
-        except Chapter.DoesNotExist:
-            return api_response(
-                message="Invalid chapter ID",
-                message_type="eror",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        # Response({"error": "Invalid chapter ID"}, status=400)
-        # Build S3 path
-        s3_key = f"{student_class.name}/{subject.name}/{semester.semester_name}/{chapter.chapter_name}/{subchapter}{video_name}/{video_file.name}"
- 
-        # Upload to S3
-        s3 = boto3.client(
-            "s3",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_S3_REGION_NAME,
-        )
- 
-        s3.upload_fileobj(video_file, settings.AWS_STORAGE_BUCKET_NAME, s3_key)
- 
-        # Final video URL
-        video_url = f"{settings.MEDIA_URL}{s3_key}"
- 
-        # Save in DB
-        data = {
-            "course": student_class.id,
-            "subject": subject.id,
-            "semester": semester.id,
-            "chapter": chapter.id,
-            "subchapter": subchapter,
-            "video_name": video_name,
-            "video_url": video_url,
- 
-        }
-        serializer = LearningVideoSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save(video_url=video_url)
-
-            return api_response(
-                message="Video uploaded successfully",
-                message_type="sucess",
-                status_code=status.HTTP_201_CREATED,
-                data=serializer.data
-            )
-            
-            # return Response({
-            #     "message": "Video uploaded successfully",
-            #     "data": serializer.data
-            # }, status=status.HTTP_201_CREATED)
-            # Response(serializer.errors, status=400)
-        return api_response(
-            message=serializer.errors,
-            message_type="error",
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
- 
-
-# class UploadVideoAPIView(APIView):
-    def post(self, request):
-        video_file = request.FILES.get("video_file")
-        class_id = request.data.get("class_id")
-        subject_id = request.data.get("subject_id")
-        semester_id = request.data.get("semester")
-        chapter_id = request.data.get("chapter")
-        subchapter = request.data.get("subchapter")
-        video_name = request.data.get("video_name")
-
-        if not video_file:
-            return api_response(
-                message="No file uploaded",
-                message_type="error",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if not all([class_id, subject_id, semester_id, chapter_id, subchapter, video_name]):
-            return api_response(
-                message="All fields are required.",
-                message_type="error",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-
-        try:
-            student_class = Class.objects.get(id=class_id)
-            subject = Subject.objects.get(id=subject_id)
-            semester = Semester.objects.get(id=semester_id)
-            chapter = Chapter.objects.get(id=chapter_id)
-        except Exception as e:
-            return api_response(
-                message=str(e),
-                message_type="error",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-
-        # ------------------- Save to temp file -------------------
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
-            for chunk in video_file.chunks():
-                temp_file.write(chunk)
-            temp_path = temp_file.name
-        # ---------------------------------------------------------
-
-        # Build S3 path
-        s3_key = f"{student_class.name}/{subject.name}/{semester.semester_name}/{chapter.chapter_name}/{subchapter}{video_name}/{video_file.name}"
-
-        # Upload to S3 using temp file
-        s3 = boto3.client(
-            "s3",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_S3_REGION_NAME,
-        )
-        s3.upload_file(temp_path, settings.AWS_STORAGE_BUCKET_NAME, s3_key)
-
-        # Final video URL
-        video_url = f"{settings.MEDIA_URL}{s3_key}"
-
-        # ------------------- Get duration -------------------
-        try:
-            clip = VideoFileClip(temp_path)
-            duration_seconds = round(clip.duration, 2)
-            clip.close()
-        except Exception as e:
-            # If any error occurs, set duration to 0 or None
-            duration_seconds = 0
-            return api_response(
-                message= str(e),
-                message_type='error',
-            )
-        finally:
-            os.remove(temp_path)  # cleanup temp file
-        # ----------------------------------------------------
-
-        # Save in DB
-        data = {
-            "course": student_class.id,
-            "subject": subject.id,
-            "semester": semester.id,
-            "chapter": chapter.id,
-            "subchapter": subchapter,
-            "video_name": video_name,
-            "video_url": video_url,
-        }
-        serializer = LearningVideoSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save(video_url=video_url)
-
-            return api_response(
-                message="Video uploaded successfully",
-                message_type="success",
-                status_code=status.HTTP_201_CREATED,
-                data={**serializer.data, "duration_seconds": duration_seconds}
-            )
-
-        return api_response(
-            message=serializer.errors,
-            message_type="error",
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
-
-
-# class UploadVideoAPIView(APIView):
-    def post(self, request):
-        video_file = request.FILES.get("video_file")
-        class_id = request.data.get("class_id")
-        subject_id = request.data.get("subject_id")
-        semester_id = request.data.get("semester")
-        chapter_name = request.data.get("chapter_name")   # changed from 'chapter'
-        chapter_number = request.data.get("chapter_number")
-        subchapter_number = request.data.get("subchapter")
-        video_name = request.data.get("video_name")
-
-        if not video_file:
-            return api_response("No file uploaded", "error", status.HTTP_400_BAD_REQUEST)
-
-        if not all([class_id, subject_id, semester_id, chapter_name, subchapter_number, video_name]):
-            return api_response("All fields are required.", "error", status.HTTP_400_BAD_REQUEST)
-
-        try:
-            student_class = Class.objects.get(id=class_id)
-            subject = Subject.objects.get(id=subject_id)
-            semester = Semester.objects.get(semester_number=semester_id)
-        except Exception as e:
-            return api_response(str(e), "error", status.HTTP_400_BAD_REQUEST)
-
-        # ---------------- Save video temporarily ----------------
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
-            for chunk in video_file.chunks():
-                temp_file.write(chunk)
-            temp_path = temp_file.name
-        # --------------------------------------------------------
-
-        # Build S3 key
-        s3_key = f"{student_class.name}/{subject.name}/{semester.semester_name}/{chapter_name}/{subchapter_number}_{video_name}/{video_file.name}"
-
-        # Upload to S3
-        s3 = boto3.client(
-            "s3",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_S3_REGION_NAME,
-        )
-        s3.upload_file(temp_path, settings.AWS_STORAGE_BUCKET_NAME, s3_key)
-
-        # Final video URL (assuming MEDIA_URL points to CloudFront/S3 base)
-        video_url = f"{settings.MEDIA_URL}{s3_key}"
-
-        # ------------------- Get duration -------------------
-
-        # try:
-        #     clip = VideoFileClip(temp_path)
-        #     duration_seconds = round(clip.duration, 2)
-        #     clip.close()
-        # except Exception as e:
-        #     # If any error occurs, set duration to 0 or None
-        #     duration_seconds = 0
-        #     return api_response(
-        #         message= str(e),
-        #         message_type='error',
-        #     )
-        # finally:
-        #     os.remove(temp_path)  # cleanup temp file
-        try:
-            clip = VideoFileClip(temp_path)
-            duration_seconds = round(clip.duration)
-            minutes, seconds = divmod(duration_seconds, 60)
-            video_duration = f"{minutes:02}:{seconds:02}"  # "MM:SS"
-            clip.close()
-        except Exception as e:
-            video_duration = None
-            return api_response(str(e), "error", status.HTTP_400_BAD_REQUEST)
-        finally:
-            os.remove(temp_path)  # cleanup
-        # ----------------------------------------------------
-
-        # ------------------- Save Chapter -------------------
-        chapter, created = Chapter.objects.get_or_create(
-            chapter_name=chapter_name,
-            course=student_class,
-            subject=subject,
-            semester=semester,
-            defaults={"chapter_number": chapter_number}
-        )
-        # ----------------------------------------------------
-
-        # ---------------- Save Subchapter ------------------
-        subchapter = Subchapter.objects.create(
-            subchapter=subchapter_number,
-            course=student_class,
-            subject=subject,
-            semester=semester,
-            chapter=chapter,
-            video_name=video_name,
-            video_url=video_url,
-            vedio_duration=video_duration,
-        )
-        # ----------------------------------------------------
-
-        return api_response(
-            message="Video uploaded successfully",
-            message_type="success",
-            status_code=status.HTTP_201_CREATED,
-            data={
-                "chapter": chapter.chapter_name,
-                "chapter_number": chapter.chapter_number,
-                "subchapter": subchapter.subchapter,
-                "video_name": subchapter.video_name,
-                "video_url": subchapter.video_url,
-                "video_duration": subchapter.vedio_duration,
-            }
-        )
 
 
 class ChaptersWithSubchaptersAPI(APIView):
@@ -479,7 +165,6 @@ class ChaptersWithSubchaptersAPI(APIView):
     def get(self, request, course_id, subject_id):
 
         chapters = Chapter.objects.filter(course_id=course_id, subject_id=subject_id).order_by("chapter_number")
-        tumbnail_image = models.FileField(upload_to='images/subchapter_thumbnails/', blank=True, null=True)
 
         data = []
  
@@ -767,6 +452,8 @@ class GeneralContentVideoAPIView(APIView):
         subtitle = request.data.get('subtitle')
         main_content_id = request.data.get('main_content_id')
         description = request.data.get('description')
+        tumbnail_image = request.FILES.get("tumbnail_image")
+
  
 
         if not all([video_file, video_name, main_content_id]):
@@ -824,7 +511,8 @@ class GeneralContentVideoAPIView(APIView):
                 main_content=main_content,
                 discription=description,
                 video_url=video_url,
-                vedio_duration = video_duration
+                vedio_duration = video_duration,
+                tumbnail_image = tumbnail_image
                 # created_at = 
                 # Add a field for duration in the model if you need to save it
             )
@@ -834,6 +522,8 @@ class GeneralContentVideoAPIView(APIView):
                 "video_name": video.video_name,
                 "video_url": video.video_url,
                 "video_duration": video_duration,
+                "tumbnail_image": video.tumbnail_image.url if video.tumbnail_image and video.tumbnail_image.name else None,
+                "description":description,
             }
             return api_response(
                 # "Video uploaded and saved successfully", "success", status.HTTP_201_CREATED, data

@@ -12,7 +12,7 @@ class StudentSerializer(serializers.ModelSerializer):
 class ClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
-        fields = '__all__'  # or list the fields you want
+        fields = ['id', 'name','amount']  # or list the fields you want
 
 # class UserLoginSerializer(serializers.ModelSerializer):
 #     name = serializers.SerializerMethodField()
