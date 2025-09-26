@@ -271,20 +271,16 @@ class VerifyAndUpdatePhoneAPIView(APIView):
             }
 
             return api_response(
-                message= "Phone number updated successfully.",
-                message_type="success",
-                status_code=status.HTTP_200_OK,
+                "Phone number updated successfully.",
+                "success",
+                status.HTTP_200_OK,
                 data=updated_student_data
             )
         else:
-             # ❌ OTP didn’t match
+
             return api_response(
-               message= "In Correct Otp.",
-               message_type= "error",
-               status_code= status.HTTP_400_BAD_REQUEST
+                "In Correct Otp.",
+                "error",
+                status.HTTP_200_OK,
         
             )
-
-
-
-
