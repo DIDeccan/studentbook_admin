@@ -7,7 +7,7 @@ from studentbookadminfrontend.models import User
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = '__all__'  # or list the fields you want
+        fields = ['id','last_login','email','first_name','last_name','phone_number','otp','user_type','registered_date','student_class']  # or list the fields you want
 
 class ClassSerializer(serializers.ModelSerializer):
     class Meta:
