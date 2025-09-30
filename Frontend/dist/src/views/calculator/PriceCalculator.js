@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import Select from "react-select";
 import {
   setClassLevel,
   setOriginalPrice,
@@ -77,7 +78,7 @@ const PriceCalculator = () => {
         style={{
           fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
           fontWeight: 700,
-          fontSize: "2.6rem",
+          fontSize: "2.3rem",
           letterSpacing: "0.5px",
         }}
       >
@@ -101,46 +102,61 @@ const PriceCalculator = () => {
       )}
 
       <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <div className="mb-3 mt-1" style={{ maxWidth: "700px", width: "100%" }}>
-          <label className="form-label fs-4 fw-bold">Class</label>
-          <select
-            className="form-select price-calculator-field"
-            value={classLevel || ""}
-            onChange={(e) => dispatch(setClassLevel(e.target.value))}
-          >
-            <option value="">Select Class</option>
-            {classList.map((cls, index) => (
-              <option key={index} value={index + 1}>
-                {cls.class}
-              </option>
-            ))}
-          </select>
+        <div className="mb-3 class-field-wrapper" style={{ maxWidth: "700px", width: "100%" }}>
+           <label className="form-label fs-6 fw-bold">Class</label>
+          <Select
+          classNamePrefix="select"
+          options={classList.map((cls) => ({
+          value: cls.id,
+          label: cls.name,
+        }))}
+          value={
+         classList
+         .map((cls) => ({ value: cls.id, label: cls.name }))
+         .find((option) => option.value === classLevel) || null
+        }
+       onChange={(option) => dispatch(setClassLevel(option?.value))}
+       placeholder="Select Class"
+       isSearchable={false} 
+       noOptionsMessage={() => "Loading classes..."}
+      />
         </div>
 
         <div className="mb-3" style={{ maxWidth: "700px", width: "100%" }}>
-          <label className="form-label fs-4 fw-bold">Original Price (₹)</label>
+          <label className="form-label fs-6 fw-bold mt-0">Original Price (₹)</label>
           <input
-            type="text"
-            className="form-control price-calculator-field"
-            value={originalPrice}
-            onChange={(e) => dispatch(setOriginalPrice(e.target.value))}
-            placeholder="Enter original price"
-          />
+           type="text"
+           className="form-control price-calculator-field"
+           value={originalPrice}
+           onChange={(e) => {
+           const value = e.target.value;
+           if (/^\d*\.?\d*$/.test(value)) {
+           dispatch(setOriginalPrice(value));
+          }
+        }}
+          placeholder="Enter original price"
+       />
         </div>
 
         <div className="mb-3" style={{ maxWidth: "700px", width: "100%" }}>
-          <label className="form-label fs-4 fw-bold">Discount (%)</label>
-          <input
-            type="text"
-            className="form-control price-calculator-field"
-            value={discount}
-            onChange={(e) => dispatch(setDiscount(e.target.value))}
-            placeholder="Enter discount percentage"
-          />
+          <label className="form-label fs-6 fw-bold">Discount (%)</label>
+         <input
+          type="text"
+          className="form-control price-calculator-field"
+          value={discount}
+          onChange={(e) => {
+          const value = e.target.value;
+          if (/^\d*\.?\d*$/.test(value)) {
+          dispatch(setDiscount(value));
+        }
+        }}
+        placeholder="Enter discount percentage"
+        />
+
         </div>
 
         <div className="mb-3" style={{ maxWidth: "700px", width: "100%" }}>
-          <label className="form-label fs-4 fw-bold">Final Price (₹)</label>
+          <label className="form-label fs-6 fw-bold">Final Price (₹)</label>
           <input
             type="text"
             className="form-control price-calculator-field"
@@ -157,11 +173,11 @@ const PriceCalculator = () => {
           disabled={loading}
           style={{ padding: "0.9rem", maxWidth: "300px", width: "100%" }}
         >
-          {loading ? "Calculating..." : "Submit"}
+          {loading ? "Submit" : "Submit"}
         </button>
       </div>
     </div>
   );
 };
 
-export default PriceCalculator;
+export default PriceCalculator;   

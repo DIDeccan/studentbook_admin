@@ -9,7 +9,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
 const StudentPieChart = () => {
   const dispatch = useDispatch();
-  const { labels, data, pieLoading, pieError, userError } = useSelector(state => state.students);
+  const { labels, data, pieLoading, pieError } = useSelector(state => state.students);
 
   useEffect(() => {
     if (labels.length === 0) {
@@ -51,7 +51,7 @@ const StudentPieChart = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      title: { display: true, text: 'Registered Students by Class', font: { size: 18 }, color:'gray' },
+      title: { display: true, text: 'Registered Students by Class', font: { size: 20 }, color:'gray' },
       legend: { position: 'bottom', labels: { font: { size: 12, weight: 'bold'} } }
     }
   };

@@ -56,67 +56,69 @@ const LoginDetails = () => {
 
   return (
     <div className="table-responsive p-1 mt-1">
-      <div className="d-flex justify-content-between align-items-center mb-1">
+      <div className="d-flex justify-content-between align-items-center mb-2">
         <h2
-       className="mb-0"
-       style={{
-       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-       fontWeight: 600,
-       fontSize: "1.50rem",
-       letterSpacing: "0.5px",
-     }}
-  >
-  User Details
-</h2>
-        <input
-          type="text"
-          placeholder="Search by name, email, status..."
-          className="form-control w-25"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
+          className="mb-0"
+          style={{
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+            fontWeight: 600,
+            fontSize: "1.50rem",
+            letterSpacing: "0.5px",
           }}
-        />
+        >
+          User Details
+        </h2>
+        <div className="searchable-table-container">
+          <input
+            type="text"
+            placeholder="Search by name, email, status..."
+            className="form-control search-input"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
       </div>
 
       {/* Table */}
-     <table className="table  table-bordered text-center table-hover custom-table">
-  <thead className="table-light">
-    <tr>
-      <th>Name</th>
-      <th>Email</th>
-      <th>Last Login</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    {currentUsers.length > 0 ? (
-      currentUsers.map((user, index) => (
-        <tr key={index}>
-          <td>{user.name || "N/A"}</td>
-          <td>{user.email || "N/A"}</td>
-          <td>
-            {user.login_time
-              ? new Date(user.login_time).toLocaleString()
-              : "N/A"}
-          </td>
-          <td>
-            {user.status === "Active" ? (
-              <span className="badge rounded-pill bg-light-success">Active</span>
-            ) : (
-              <span className="badge rounded-pill bg-light-danger">Inactive</span>
-            )}
-          </td>
-        </tr>
-      ))
-    ) : (
-      <tr>
-        <td colSpan="4">No users found</td>
-      </tr>
-    )}
-  </tbody>
-</table>
+      <table className="table table-bordered text-center table-hover custom-table">
+        <thead className="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Last Login</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentUsers.length > 0 ? (
+            currentUsers.map((user, index) => (
+              <tr key={index}>
+                <td>{user.name || "N/A"}</td>
+                <td>{user.email || "N/A"}</td>
+                <td>
+                  {user.login_time
+                    ? new Date(user.login_time).toLocaleString()
+                    : "N/A"}
+                </td>
+                <td>
+                  {user.status === "Active" ? (
+                    <span className="badge rounded-pill bg-light-success">Active</span>
+                  ) : (
+                    <span className="badge rounded-pill bg-light-danger">Inactive</span>
+                  )}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4">No users found</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
       {totalPages > 1 && (
         <div className="d-flex justify-content-between align-items-center mt-1">
