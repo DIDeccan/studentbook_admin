@@ -1,5 +1,7 @@
 from studentbookadminfrontend.models import *
 from rest_framework import serializers
+from studentbookadminfrontend.models import MainContent
+
 
 
 
@@ -45,6 +47,14 @@ class ClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
         fields = ['id', 'name']
+
+
+class MainContentSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="title", read_only = True )
+    class Meta:
+        model = MainContent
+        fields = ['id', 'name']
+
 
 
  

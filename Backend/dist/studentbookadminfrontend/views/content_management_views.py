@@ -11,6 +11,11 @@ import os
 from studentbookadminfrontend.models import Class, Subject, Semester, Chapter, Subchapter
 import urllib.parse
 from studentbookadminfrontend.models import GeneralContentVideo, MainContent
+from rest_framework import viewsets
+from studentbookadminfrontend.models import MainContent
+
+
+
 
 
 
@@ -719,6 +724,20 @@ class GeneralContentVideoAPIView(APIView):
             if temp_path and os.path.exists(temp_path):
                 os.remove(temp_path) # Cleanup temp file
 
+class MainContentAPIView(APIView):
+    """
+    A simple ViewSet for viewing and editing MainContent.
+    """
+    def get(self, request, format=None):
+        queryset = MainContent.objects.all()
+        serializer = MainContentSerializer(queryset,many=True)
+
+        return api_response(
+            message="Class List Data.",
+            message_type="success",
+            status_code=status.HTTP_200_OK,
+            data=serializer.data
+        )
 
 
 
