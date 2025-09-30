@@ -8,14 +8,8 @@ import LoginDetails from "./LoginDetails";
 const Dashboard = () => {
   return (
     <Container fluid>
-      <Row className="mb-3">
-        <Col>
-          <h4>Dashboard</h4>
-        </Col>
-      </Row>
-
       <Row>
-        <Col md="6" className="mb-2">
+        <Col md="6" className="mb-2 mt-2">
           <div className="card shadow-md w-100 h-80">
             <div className="card-body d-flex justify-content-center align-items-center">
               <StudentPieChart />

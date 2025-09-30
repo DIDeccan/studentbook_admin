@@ -54,7 +54,7 @@ const StudentTable = () => {
 
   return (
     <div className="table-responsive p-1 mt-1">
-      <div className="d-flex justify-content-between align-items-center mb-1">
+      <div className="d-flex justify-content-between align-items-center mb-2">
           <h2
             className="mb-0"
             style={{
@@ -66,16 +66,18 @@ const StudentTable = () => {
       >
   User Login Details
    </h2>
+        <div className="searchable-table-container">
         <input
           type="text"
           placeholder="Search by name, email, phone, status..."
-          className="form-control w-25 "
+          className="form-control search-input "
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             setCurrentPage(1); 
           }}
         />
+        </div>
       </div>
       <table className="table table-bordered text-center table-hover custom-table mb-0">
         <thead className="table-light">

@@ -58,19 +58,25 @@ const PaymentDetails = () => {
     };
 
     dispatch(fetchPaymentDetails(apiFilters));
+
+    // ✅ Clear the input fields after 3 seconds
+    setTimeout(() => {
+      setFilters({
+        start_date: "",
+        end_date: "",
+        class: null,
+        status: null,
+      });
+    }, 3000);
   };
 
   // ✅ Converts array to CSV format
   function convertArrayOfObjectsToCSV(array) {
     if (!array || array.length === 0) return null;
-   
-    //columns are separated by commas.
+
     const columnDelimiter = ",";
-    //rows are separated by newlines.
     const lineDelimiter = "\n";
-    //These will be the column names and the order
     const keys = Object.keys(array[0]);
-    //id,name,age\n
     let result = keys.join(columnDelimiter) + lineDelimiter;
 
     array.forEach((item) => {
@@ -106,27 +112,26 @@ const PaymentDetails = () => {
   }
 
   return (
-      <div className="container-fluid p-0">
-  <div className="card shadow-sm w-100 mb-3">
-    <div className="card-header pt-4 pb-0 ps-2 pe-3">
-      <h2
-       className="mb-2"
-       style={{
-       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-       fontWeight: 600,
-       fontSize: "1.75rem",
-       letterSpacing: "0.5px",
-     }}
-  >
-  Payment Details
-</h2>
-
-       </div>
+    <div className="payment-details-container container-fluid p-0">
+      <div className="card shadow-md w-100 ">
+        <div className="card-header pt-3 pb-0 ps-2 pe-3">
+          <h2
+            className="mb-2"
+            style={{
+              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+              fontWeight: 600,
+              fontSize: "1.75rem",
+              letterSpacing: "0.5px",
+            }}
+          >
+            Payment Details
+          </h2>
+        </div>
         <div className="card-body pt-2 pb-2 ps-3 pe-3 ">
           <form onSubmit={handleSubmit}>
             <div className="row g-3 mb-4">
               <div className="col-md-6">
-                <label className="form-label fw-semibold">Start Date</label>
+                <label className="form-label fs-6 fw-bold">Start Date</label>
                 <input
                   type="date"
                   name="start_date"
@@ -137,7 +142,7 @@ const PaymentDetails = () => {
                 />
               </div>
               <div className="col-md-6">
-                <label className="form-label fw-semibold">End Date</label>
+                <label className="form-label fs-6 fw-bold">End Date</label>
                 <input
                   type="date"
                   name="end_date"
@@ -151,32 +156,32 @@ const PaymentDetails = () => {
 
             <div className="row g-3 mb-4">
               <div className="col-md-6">
-                <label className="form-label fw-semibold">Class</label>
+                <label className="form-label fs-6 fw-bold">Class</label>
                 <Select
                   options={classOptions}
                   name="class"
                   value={filters.class}
                   onChange={handleSelectChange}
                   placeholder="Select Class"
-                  isClearable
-                  classNamePrefix="select" 
+                  isSearchable={false}
+                  classNamePrefix="select"
                 />
               </div>
               <div className="col-md-6">
-                <label className="form-label fw-semibold">Status</label>
+                <label className="form-label fs-6 fw-bold">Status</label>
                 <Select
                   options={statusOptions}
                   name="status"
                   value={filters.status}
                   onChange={handleSelectChange}
                   placeholder="Select Status"
-                  isClearable
-                  classNamePrefix="select" 
+                  isSearchable={false}
+                  classNamePrefix="select"
                 />
               </div>
             </div>
 
-            <div className="row mt-4 mb-1">
+            <div className="row mt-2 mb-1">
               <div className="col text-end">
                 <button type="submit" className="btn btn-primary px-4">
                   Submit
@@ -254,8 +259,6 @@ const PaymentDetails = () => {
                             </span>
                           )}
                         </td>
-                        
-
                         <td>{p.payment_mode || "N/A"}</td>
                         <td>{p.payment_gateway || "Not Available"}</td>
                         <td>{p.start_date}</td>
