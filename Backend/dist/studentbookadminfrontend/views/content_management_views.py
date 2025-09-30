@@ -68,7 +68,7 @@ class UploadVideoAPIView(APIView):
         # ------------------- Get video duration -------------------
         try:
             clip = VideoFileClip(temp_path)
-            duration_seconds = round(clip.duration)
+            duration_seconds = int(clip.duration)
             minutes, seconds = divmod(duration_seconds, 60)
             video_duration = f"{minutes:02}:{seconds:02}"
             clip.close()
@@ -119,6 +119,8 @@ class UploadVideoAPIView(APIView):
 
         # ------------------- Get or Update Subchapter -------------------
         try:
+            
+            
             subchapter, created = Subchapter.objects.update_or_create(
                 defaults={
                     "video_name": video_name,
@@ -134,6 +136,13 @@ class UploadVideoAPIView(APIView):
                 chapter=chapter,
                 subchapter=subchapter_number,
             )
+
+            if not created:
+                progress_deleted_count, _ = VideoTrackingLog.objects.filter(
+                    subchapter=subchapter
+                ).delete()
+                print(f"INFO: Video replaced. Deleted {progress_deleted_count} student tracking logs.")
+            
         except Exception as e:
             return api_response(f"Failed to create/update subchapter: {str(e)}", "error", status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -154,6 +163,173 @@ class UploadVideoAPIView(APIView):
                 "tumbnail_image":subchapter.tumbnail_image.url if subchapter.tumbnail_image else None
             }
         )
+
+# class UploadVideoAPIView(APIView):
+#     def post(self, request):
+#         # ------------------- 1. Data Retrieval -------------------
+#         video_file = request.FILES.get("video_file")
+#         tumbnail_image = request.FILES.get("tumbnail_image")
+        
+#         class_id = request.data.get("class_id")
+#         subject_id = request.data.get("subject_id")
+#         semester_id = request.data.get("semester")
+#         chapter_name = request.data.get("chapter_name")
+#         chapter_number = request.data.get("chapter_number")
+#         subchapter_number = request.data.get("subchapter")
+#         video_name = request.data.get("video_name")
+#         subchapter_description = request.data.get("subchapter_description")
+
+#         # ------------------- 2. Validation and Object Lookup -------------------
+#         if not all([video_file, class_id, subject_id, semester_id, chapter_name, subchapter_number, video_name, tumbnail_image]):
+#             return api_response(
+#                 message="All fields are required.", 
+#                 message_type="error", 
+#                 status_code=status.HTTP_400_BAD_REQUEST)
+
+#         try:
+#             student_class = Class.objects.get(id=class_id)
+#             subject = Subject.objects.get(id=subject_id, course=class_id) 
+#             semester = Semester.objects.get(semester_number=semester_id)
+#         except (Class.DoesNotExist, Subject.DoesNotExist, Semester.DoesNotExist) as e:
+#             return api_response(
+#                 message=f"Object not found: {str(e)}", 
+#                 message_type="error", 
+#                 status_code=status.HTTP_404_NOT_FOUND)
+#         except Exception as e:
+#             return api_response(
+#                 message=str(e), 
+#                 message_type="error", 
+#                 status_code=status.HTTP_400_BAD_REQUEST)
+
+#         # ------------------- 3. Video Processing (Temp, Duration, S3 Upload) -------------------
+#         temp_path = None
+#         video_url = None
+#         video_duration = None
+        
+#         try:
+#             # Save video temporarily
+#             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+#                 for chunk in video_file.chunks():
+#                     temp_file.write(chunk)
+#                 temp_path = temp_file.name
+#         except Exception as e:
+#             if temp_path and os.path.exists(temp_path):
+#                 os.remove(temp_path)
+#             return api_response(
+#                 message=f"Failed to save temp file: {str(e)}", 
+#                 message_type="error", 
+#                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#             # Get video duration
+#             clip = VideoFileClip(temp_path)
+#             duration_seconds = round(clip.duration)
+#             minutes, seconds = divmod(duration_seconds, 60)
+#             video_duration = f"{minutes:02}:{seconds:02}"
+#             clip.close()
+#         except Exception as e:
+#             video_duration = None
+#             if temp_path and os.path.exists(temp_path):
+#                 os.remove(temp_path)
+#             return api_response(
+#                 message=f"Failed to get video duration: {str(e)}", 
+#                 message_type="error", 
+#                 status_code=status.HTTP_400_BAD_REQUEST)
+
+#             # Upload to S3
+#             s3_key = f"vedios/{student_class.name}/{subject.name}/{semester.semester_name}/{chapter_name}/{subchapter_number}_{video_name}/{video_file.name}"
+#             encoded_key = urllib.parse.quote(s3_key)
+#             s3 = boto3.client(
+#                 "s3",
+#                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+#                 aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+#                 region_name=settings.AWS_S3_REGION_NAME,
+#             )
+#             s3.upload_file(temp_path, settings.AWS_STORAGE_BUCKET_NAME, s3_key)
+#             video_url = f"{settings.MEDIA_URL}{encoded_key}"
+            
+#         except Exception as e:
+#             return api_response(
+#                 message=f"File processing/Upload error: {str(e)}", 
+#                 message_type="error", 
+#                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         finally:
+#             if temp_path and os.path.exists(temp_path):
+#                 os.remove(temp_path) # Cleanup temp file
+
+#         # ------------------- 4. Get or Create Chapter -------------------
+#         try:
+#             chapter, created_ch = Chapter.objects.get_or_create(
+#                 chapter_number=chapter_number,
+#                 course=student_class,
+#                 subject=subject,
+#                 semester=semester,
+#                 defaults={"chapter_name":chapter_name}
+#             )
+#             if not created_ch and chapter.chapter_name != chapter_name:
+#                 chapter.chapter_name = chapter_name
+#                 chapter.save()
+#         except Exception as e:
+#             return api_response(
+#                 message=f"Failed to create/get chapter: {str(e)}", 
+#                 message_type="error", 
+#                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#         # ------------------- 5. Get or Update Subchapter (with Progress Deletion) -------------------
+#         try:
+#             subchapter_key_fields = {
+#                 'course': student_class,
+#                 'subject': subject,
+#                 'semester': semester,
+#                 'chapter': chapter,
+#                 'subchapter': subchapter_number,
+#             }
+            
+#             existing_subchapter = Subchapter.objects.filter(**subchapter_key_fields).first()
+            
+#             # 🔥 Check if Subchapter exists and delete old tracking data
+#             if existing_subchapter:
+#                 progress_deleted_count, _ = VideoTrackingLog.objects.filter(
+#                     subchapter=existing_subchapter
+#                 ).delete()
+#                 print(f"INFO: Video replaced. Deleted {progress_deleted_count} student tracking logs.")
+            
+#             # Update or create the Subchapter record with new data
+#             subchapter, created_sub = Subchapter.objects.update_or_create(
+#                  **subchapter_key_fields,
+#                  defaults={
+#                      "video_name": video_name,
+#                      "video_url": video_url,
+#                      "vedio_duration": video_duration,
+#                      "tumbnail_image": tumbnail_image, 
+#                      "description": subchapter_description,
+#                  }
+#             )
+            
+#         except Exception as e:
+#             return api_response(
+#                 message=f"Failed to create/update subchapter: {str(e)}",
+#                 message_type= "error", 
+#                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#         # ------------------- 6. Final Response -------------------
+#         thumbnail_url = subchapter.tumbnail_image.url if subchapter.tumbnail_image else None
+        
+#         return api_response(
+#             message="Video uploaded and subchapter updated successfully" if not created_sub else "New subchapter created successfully",
+#             message_type="success",
+#             status_code=status.HTTP_201_CREATED if created_sub else status.HTTP_200_OK,
+#             data={
+#                 "chapter": chapter.chapter_name,
+#                 "chapter_number": chapter.chapter_number,
+#                 "subchapter": subchapter.subchapter,
+#                 "subchapter_id": subchapter.id,
+#                 "video_name": subchapter.video_name,
+#                 "video_url": subchapter.video_url,
+#                 "video_duration": subchapter.vedio_duration,
+#                 "subchapter_description": subchapter.description,
+#                 "tumbnail_image": thumbnail_url
+#             }
+#         )
 
 
 
@@ -195,7 +371,6 @@ class ChaptersWithSubchaptersAPI(APIView):
                 "chapter_id": chapter.id,
 
                 "chapter_name": chapter.chapter_name,
-
 
                 "chapter_number": chapter.chapter_number,
 
@@ -394,7 +569,6 @@ class ClassListAPIView(APIView):
 #             data={}
 #         )
 #     # ("Video created successfully", "success", status.HTTP_201_CREATED, data)
-
 
 class GeneralContentVideoAPIView(APIView):
     # GET: Get a list of all general videos or a single video

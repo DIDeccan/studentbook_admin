@@ -415,6 +415,27 @@ class GeneralContentVideo(models.Model):
     def __str__(self):
         return f"{self.video_name} - {self.main_content.title}"
  
+# tracking models
+class VideoTrackingLog(models.Model):
+    student = models.ForeignKey("Student", on_delete=models.CASCADE, related_name="videotracking_log")
+    subchapter = models.ForeignKey(Subchapter, on_delete=models.CASCADE, related_name="videotracking_log")
+    watched_duration = models.DurationField(default=0)  # actual time user watched
+    completed = models.BooleanField(default=False)
+    is_favourate = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return f"{self.student} - {self.subchapter} ({self.watched_duration})"
+   
+    class Meta:
+        db_table = 'studentbookfrontend_videotrackinglog'
+
+        constraints = [
+            models.UniqueConstraint(fields=['student', 'subchapter'], name='unique_student_subchapter')
+        ]
+    
+ 
+ 
  
  
 
