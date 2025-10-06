@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPaymentDetails } from "../../redux/paymentSlice";
-import { Spinner } from "reactstrap";
+import { Spinner, FormGroup, Label, Button } from "reactstrap";
 import { FileText } from "react-feather";
 
 const classOptions = [
@@ -22,7 +22,6 @@ const statusOptions = [
 const PaymentDetails = () => {
   const dispatch = useDispatch();
   const { payments, loading, error } = useSelector((state) => state.payments);
-
   const [filters, setFilters] = useState({
     start_date: "",
     end_date: "",
@@ -58,32 +57,42 @@ const PaymentDetails = () => {
     };
 
     dispatch(fetchPaymentDetails(apiFilters));
-
-    // ✅ Clear the input fields after 3 seconds
-    setTimeout(() => {
-      setFilters({
-        start_date: "",
-        end_date: "",
-        class: null,
-        status: null,
-      });
-    }, 3000);
   };
 
-  // ✅ Converts array to CSV format
+  // ✅ New useEffect to reset filters after API completes successfully
+  useEffect(() => {
+    if (!loading && submitted && !error) {
+      setFilters({ start_date: "", end_date: "", class: null, status: null });
+    }
+  }, [loading, submitted, error]);
+
   function convertArrayOfObjectsToCSV(array) {
     if (!array || array.length === 0) return null;
 
     const columnDelimiter = ",";
     const lineDelimiter = "\n";
-    const keys = Object.keys(array[0]);
-    let result = keys.join(columnDelimiter) + lineDelimiter;
+
+    const csvColumns = [
+      "transaction_id",
+      "user_name",
+      "user_email",
+      "class",
+      "status",
+      "payment_mode",
+      "payment_gateway",
+      "start_date",
+      "end_date"
+    ];
+
+    let result = csvColumns.join(columnDelimiter) + lineDelimiter;
 
     array.forEach((item) => {
       let line = "";
-      keys.forEach((key, index) => {
+      csvColumns.forEach((key, index) => {
         if (index > 0) line += columnDelimiter;
-        line += item[key] !== null && item[key] !== undefined ? item[key] : "";
+        line += item[key] !== null && item[key] !== undefined && item[key] !== ""
+          ? item[key]
+          : "N/A";
       });
       result += line + lineDelimiter;
     });
@@ -91,7 +100,6 @@ const PaymentDetails = () => {
     return result;
   }
 
-  // ✅ Triggers CSV download
   function downloadCSV(array) {
     const csv = convertArrayOfObjectsToCSV(array);
     if (csv === null) return;
@@ -113,7 +121,7 @@ const PaymentDetails = () => {
 
   return (
     <div className="payment-details-container container-fluid p-0">
-      <div className="card shadow-md w-100 ">
+      <div className="card shadow-md w-100">
         <div className="card-header pt-3 pb-0 ps-2 pe-3">
           <h2
             className="mb-2"
@@ -127,65 +135,85 @@ const PaymentDetails = () => {
             Payment Details
           </h2>
         </div>
-        <div className="card-body pt-2 pb-2 ps-3 pe-3 ">
+        <div className="card-body pt-2 pb-0 ps-3 pe-3">
           <form onSubmit={handleSubmit}>
-            <div className="row g-3 mb-4">
+            <div className="row g-3 mb-2">
               <div className="col-md-6">
-                <label className="form-label fs-6 fw-bold">Start Date</label>
-                <input
-                  type="date"
-                  name="start_date"
-                  value={filters.start_date}
-                  onChange={handleChange}
-                  className="form-control"
-                  max={filters.end_date || undefined}
-                />
+                <FormGroup>
+                  <Label for="start_date" className="form-label fs-6 fw-bold">
+                    Start Date
+                  </Label>
+                  <input
+                    id="start_date"
+                    type="date"
+                    name="start_date"
+                    value={filters.start_date}
+                    onChange={handleChange}
+                    className="form-control"
+                    max={filters.end_date || undefined}
+                  />
+                </FormGroup>
               </div>
               <div className="col-md-6">
-                <label className="form-label fs-6 fw-bold">End Date</label>
-                <input
-                  type="date"
-                  name="end_date"
-                  value={filters.end_date}
-                  onChange={handleChange}
-                  className="form-control"
-                  min={filters.start_date || undefined}
-                />
-              </div>
-            </div>
-
-            <div className="row g-3 mb-4">
-              <div className="col-md-6">
-                <label className="form-label fs-6 fw-bold">Class</label>
-                <Select
-                  options={classOptions}
-                  name="class"
-                  value={filters.class}
-                  onChange={handleSelectChange}
-                  placeholder="Select Class"
-                  isSearchable={false}
-                  classNamePrefix="select"
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="form-label fs-6 fw-bold">Status</label>
-                <Select
-                  options={statusOptions}
-                  name="status"
-                  value={filters.status}
-                  onChange={handleSelectChange}
-                  placeholder="Select Status"
-                  isSearchable={false}
-                  classNamePrefix="select"
-                />
+                <FormGroup>
+                  <Label for="end_date" className="form-label fs-6 fw-bold">
+                    End Date
+                  </Label>
+                  <input
+                    id="end_date"
+                    type="date"
+                    name="end_date"
+                    value={filters.end_date}
+                    onChange={handleChange}
+                    className="form-control"
+                    min={filters.start_date || undefined}
+                  />
+                </FormGroup>
               </div>
             </div>
 
-            <div className="row mt-2 mb-1">
+            <div className="row g-3 mb-1">
+              <div className="col-md-6">
+                <FormGroup>
+                  <Label for="class" className="form-label fs-6 fw-bold">
+                    Class
+                  </Label>
+                  <Select
+                    inputId="class"
+                    options={classOptions}
+                    name="class"
+                    value={filters.class}
+                    onChange={handleSelectChange}
+                    placeholder="Select Class"
+                    isSearchable={false}
+                    classNamePrefix="select"
+                  />
+                </FormGroup>
+              </div>
+              <div className="col-md-6">
+                <FormGroup>
+                  <Label for="status" className="form-label fs-6 fw-bold">
+                    Status
+                  </Label>
+                  <Select
+                    inputId="status"
+                    options={statusOptions}
+                    name="status"
+                    value={filters.status}
+                    onChange={handleSelectChange}
+                    placeholder="Select Status"
+                    isSearchable={false}
+                    classNamePrefix="select"
+                  />
+                </FormGroup>
+              </div>
+            </div>
+
+            <div className="row mt-0 mb-2">
               <div className="col text-end">
-                <button type="submit" className="btn btn-primary px-4">
+                <Button type="submit" color="primary" className="px-4">
                   Submit
-                </button>
+                </Button>
               </div>
             </div>
           </form>
@@ -234,8 +262,8 @@ const PaymentDetails = () => {
                 </thead>
                 <tbody>
                   {payments.length > 0 ? (
-                    payments.map((p) => (
-                      <tr key={p.transaction_id || Math.random()}>
+                    payments.map((p, index) => (
+                      <tr key={p.transaction_id || index}>
                         <td>{p.transaction_id || "N/A"}</td>
                         <td>{p.user_name}</td>
                         <td>{p.user_email}</td>

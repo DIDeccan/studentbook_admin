@@ -54,7 +54,7 @@ const StudentTable = () => {
 
   return (
     <div className="table-responsive p-1 mt-1">
-      <div className="d-flex justify-content-between align-items-center mb-2">
+      <div className="d-flex justify-content-between align-items-center mb-1">
           <h2
             className="mb-0"
             style={{

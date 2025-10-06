@@ -10,6 +10,9 @@ import {
   fetchClassList,
 } from "../../redux/calculatorSlice";
 
+// ✅ NEW imports from reactstrap
+import { Label, Input, Button } from "reactstrap";
+
 const PriceCalculator = () => {
   const dispatch = useDispatch();
   const {
@@ -25,6 +28,7 @@ const PriceCalculator = () => {
 
   const [previewPrice, setPreviewPrice] = useState("");
   const [warning, setWarning] = useState("");
+  const [submitted, setSubmitted] = useState(false); // ✅ Added to track submission
 
   useEffect(() => {
     dispatch(fetchClassList());
@@ -36,7 +40,9 @@ const PriceCalculator = () => {
 
     if (!isNaN(priceNum) && !isNaN(discountNum)) {
       const calcPrice =
-        Math.round((priceNum - priceNum * (discountNum / 100) + Number.EPSILON) * 100) / 100;
+        Math.round(
+          (priceNum - priceNum * (discountNum / 100) + Number.EPSILON) * 100
+        ) / 100;
       setPreviewPrice(calcPrice.toFixed(2));
     } else {
       setPreviewPrice("");
@@ -50,10 +56,11 @@ const PriceCalculator = () => {
       return;
     }
     setWarning("");
+    setSubmitted(true); // ✅ Mark form as submitted
 
     dispatch(
       fetchCalculatePrice({
-        class_id: parseInt(classLevel, 10), 
+        class_id: parseInt(classLevel, 10),
         original_price: parseFloat(originalPrice),
         discount_percentage: parseFloat(discount),
         final_price: parseFloat(previewPrice),
@@ -61,15 +68,19 @@ const PriceCalculator = () => {
     );
   };
 
+  // ✅ New useEffect to clear fields after successful calculation
   useEffect(() => {
-    if (success || error || warning) {
-      const timer = setTimeout(() => {
-        dispatch(reset());
-        setWarning("");
-      }, 3000);
-      return () => clearTimeout(timer);
+    if (!loading && submitted && !error && success) {
+      dispatch(reset());           // clears Redux state
+      setWarning("");              // clear warning
+      setSubmitted(false);         // reset submission state
     }
-  }, [success, error, warning, dispatch]);
+  }, [loading, submitted, error, success, dispatch]);
+
+  const classOptions = (classList || []).map((cls) => ({
+    value: cls.id,
+    label: cls.name,
+  }));
 
   return (
     <div className="px-2 price-calculator">
@@ -101,83 +112,115 @@ const PriceCalculator = () => {
         </div>
       )}
 
-      <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <div className="mb-3 class-field-wrapper" style={{ maxWidth: "700px", width: "100%" }}>
-           <label className="form-label fs-6 fw-bold">Class</label>
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        {/* Class */}
+        <div
+          className="mb-3 class-field-wrapper"
+          style={{ maxWidth: "700px", width: "100%" }}
+        >
+          <Label for="class-select" className="form-label fs-6 fw-bold">
+            Class
+          </Label>
           <Select
-          classNamePrefix="select"
-          options={classList.map((cls) => ({
-          value: cls.id,
-          label: cls.name,
-        }))}
-          value={
-         classList
-         .map((cls) => ({ value: cls.id, label: cls.name }))
-         .find((option) => option.value === classLevel) || null
-        }
-       onChange={(option) => dispatch(setClassLevel(option?.value))}
-       placeholder="Select Class"
-       isSearchable={false} 
-       noOptionsMessage={() => "Loading classes..."}
-      />
+            inputId="class-select"
+            classNamePrefix="select"
+            options={classOptions}
+            value={
+              classOptions.find((option) => option.value === classLevel) || null
+            }
+            onChange={(option) => dispatch(setClassLevel(option?.value))}
+            placeholder="Select Class"
+            isSearchable={false}
+            noOptionsMessage={() =>
+              loading ? "Loading classes..." : "No classes found"
+            }
+            isDisabled={loading}
+          />
         </div>
 
+        {/* Original Price */}
         <div className="mb-3" style={{ maxWidth: "700px", width: "100%" }}>
-          <label className="form-label fs-6 fw-bold mt-0">Original Price (₹)</label>
-          <input
-           type="text"
-           className="form-control price-calculator-field"
-           value={originalPrice}
-           onChange={(e) => {
-           const value = e.target.value;
-           if (/^\d*\.?\d*$/.test(value)) {
-           dispatch(setOriginalPrice(value));
-          }
-        }}
-          placeholder="Enter original price"
-       />
-        </div>
-
-        <div className="mb-3" style={{ maxWidth: "700px", width: "100%" }}>
-          <label className="form-label fs-6 fw-bold">Discount (%)</label>
-         <input
-          type="text"
-          className="form-control price-calculator-field"
-          value={discount}
-          onChange={(e) => {
-          const value = e.target.value;
-          if (/^\d*\.?\d*$/.test(value)) {
-          dispatch(setDiscount(value));
-        }
-        }}
-        placeholder="Enter discount percentage"
-        />
-
-        </div>
-
-        <div className="mb-3" style={{ maxWidth: "700px", width: "100%" }}>
-          <label className="form-label fs-6 fw-bold">Final Price (₹)</label>
-          <input
+          <Label for="original-price" className="form-label fs-6 fw-bold mt-0">
+            Original Price (₹)
+          </Label>
+          <Input
+            id="original-price"
             type="text"
-            className="form-control price-calculator-field"
-            value={previewPrice ? `₹${previewPrice}` : ""}
+            className="price-calculator-field"
+            value={originalPrice}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*\.?\d*$/.test(value)) {
+                dispatch(setOriginalPrice(value));
+              }
+            }}
+            placeholder="Enter original price"
+          />
+        </div>
+
+        {/* Discount */}
+        <div className="mb-3" style={{ maxWidth: "700px", width: "100%" }}>
+          <Label for="discount" className="form-label fs-6 fw-bold">
+            Discount (%)
+          </Label>
+          <Input
+            id="discount"
+            type="text"
+            className="price-calculator-field"
+            value={discount}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*\.?\d*$/.test(value)) {
+                dispatch(setDiscount(value));
+              }
+            }}
+            placeholder="Enter discount percentage"
+          />
+        </div>
+
+        {/* Final Price */}
+        <div className="mb-3" style={{ maxWidth: "700px", width: "100%" }}>
+          <Label for="final-price" className="form-label fs-6 fw-bold">
+            Final Price (₹)
+          </Label>
+          <Input
+            id="final-price"
+            type="text"
+            className="price-calculator-field"
+            value={
+              finalPrice
+                ? `₹${finalPrice}`
+                : previewPrice
+                ? `₹${previewPrice}`
+                : ""
+            }
             readOnly
             placeholder="Final price will be shown"
             style={{ backgroundColor: "#f9f9f9" }}
           />
         </div>
-        <button
+
+        {/* Submit */}
+        <Button
           type="button"
           onClick={handleSubmit}
-          className="btn btn-primary mb-0"
+          color="primary"
           disabled={loading}
-          style={{ padding: "0.9rem", maxWidth: "300px", width: "100%" }}
+          className="mb-0"
+          style={{ padding: "0.9rem", maxWidth: "200px", width: "100%" }}
         >
           {loading ? "Submit" : "Submit"}
-        </button>
+        </Button>
       </div>
     </div>
   );
 };
 
-export default PriceCalculator;   
+export default PriceCalculator;

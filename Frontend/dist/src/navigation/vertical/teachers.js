@@ -1,11 +1,11 @@
 // ** Icons Import
-import { Home, Circle } from 'react-feather'
+import { User } from 'react-feather'
 
 export default [
   {
     id: 'teachers',
-    title: 'Teacher Details',
-    icon: <Home size={20} />,
+    title: 'Student Details',
+    icon: <User size={20} />,
     navLink: '/teacherdetails'
   }
 ]
