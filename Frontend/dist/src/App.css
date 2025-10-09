@@ -351,3 +351,32 @@
   outline: 0px solid #4d51a0 !important;
   outline-offset: 0px;
 }
+
+
+/* Logo Styling */
+.navbar-header .navbar-brand {
+  margin: 0 !important;
+  padding-top: 8px !important; 
+  padding-bottom: 8px !important; 
+  padding-left: 10px !important; 
+}
+
+.vertical-layout .navbar-header .brand-logo img,
+.vertical-layout .navbar-header {
+  max-width: none !important;   
+  width: 70px !important;     
+}
+
+.vertical-layout .navbar-header,
+.horizontal-layout .navbar-header {
+  padding-left: 0px !important;
+}
+
+.navbar-brand span, .navbar-brand .brand-text {
+  padding-left: 0 !important;
+  font-size: 22px !important;
+  
+}
+
+
+

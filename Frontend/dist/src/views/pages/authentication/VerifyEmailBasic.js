@@ -62,7 +62,7 @@ const VerifyEmailBasic = () => {
                   </g>
                 </g>
               </svg>
-              <h2 className='brand-text text-primary ms-1'>Zerohack</h2>
+              <h2 className='brand-text text-primary ms-1'>Student Book</h2>
             </Link>
             <CardTitle tag='h2' className='fw-bolder mb-1'>
               Verify your email ✉️

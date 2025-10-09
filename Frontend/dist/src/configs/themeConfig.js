@@ -1,12 +1,12 @@
 // Logo Import
-import logo from '@src/assets/images/logo/logo.svg'
+import logo from '@src/assets/images/logo/studentlogo.png'
 
 // You can customize the template with the help of this file
 
 //Template config options
 const themeConfig = {
   app: {
-    appName: 'STUDENT BOOK',
+    appName: 'Student Book',
     appLogoImage: logo
   },
   layout: {

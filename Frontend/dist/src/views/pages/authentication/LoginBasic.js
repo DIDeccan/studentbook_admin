@@ -68,10 +68,10 @@ const LoginBasic = () => {
                   </g>
                 </g>
               </svg>
-              <h2 className='brand-text text-primary ms-1'>Zerohack</h2>
+              <h2 className='brand-text text-primary ms-1'>Student Book</h2>
             </Link>
             <CardTitle tag='h4' className='mb-1'>
-              Welcome to Zerohack! 👋
+              Welcome to Student Book! 👋
             </CardTitle>
             <CardText className='mb-2'>Please sign-in to your account and start the adventure</CardText>
             <Form className='auth-login-form mt-2' onSubmit={e => e.preventDefault()}>

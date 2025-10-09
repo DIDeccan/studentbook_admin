@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 
 // ** Icons Imports
-import { Disc, X, Circle } from 'react-feather'
+import {X} from 'react-feather'
 
 // ** Config
 import themeConfig from '@configs/themeConfig'
@@ -26,23 +26,23 @@ const VerticalMenuHeader = props => {
   // ** Menu toggler component
   const Toggler = () => {
     if (!menuCollapsed) {
-      return (
-        <Disc
-          size={20}
-          data-tour='toggle-icon'
-          className='text-primary toggle-icon d-none d-xl-block'
-          onClick={() => setMenuCollapsed(true)}
-        />
-      )
-    } else {
-      return (
-        <Circle
-          size={20}
-          data-tour='toggle-icon'
-          className='text-primary toggle-icon d-none d-xl-block'
-          onClick={() => setMenuCollapsed(false)}
-        />
-      )
+    //   return (
+    //     <Disc
+    //       size={20}
+    //       data-tour='toggle-icon'
+    //       className='text-primary toggle-icon d-none d-xl-block'
+    //       onClick={() => setMenuCollapsed(true)}
+    //     />
+    //   )
+    // } else {
+    //   return (
+    //     <Circle
+    //       size={20}
+    //       data-tour='toggle-icon'
+    //       className='text-primary toggle-icon d-none d-xl-block'
+    //       onClick={() => setMenuCollapsed(false)}
+    //     />
+    //   )
     }
   }
 
@@ -52,7 +52,7 @@ const VerticalMenuHeader = props => {
         <li className='nav-item me-auto'>
           <NavLink to={user ? getHomeRouteForLoggedInUser(user.role) : '/'} className='navbar-brand'>
             <span className='brand-logo'>
-              <img src={themeConfig.app.appLogoImage} alt='logo' />
+              <img src={themeConfig.app.appLogoImage} alt='logo'  />
             </span>
             <h2 className='brand-text mb-0'>{themeConfig.app.appName}</h2>
           </NavLink>

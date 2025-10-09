@@ -64,7 +64,7 @@ const ReferEarnModal = () => {
           <div className='px-sm-4 mx-50'>
             <h1 className='text-center mb-1'>Refer & Earn</h1>
             <p className='text-center mb-5'>
-              Invite your friend to Zerohack, if they sign up, you and
+              Invite your friend to Student Book, if they sign up, you and
               <br />
               your friend will get 30 days free trial
             </p>
@@ -92,7 +92,7 @@ const ReferEarnModal = () => {
             <Row tag='form' className='g-1' onSubmit={e => e.preventDefault()}>
               <Col lg='10'>
                 <Label for='friendEmail' className='form-label'>
-                  Enter your friend’s email address and invite them to join Zerohack 😍
+                  Enter your friend’s email address and invite them to join Student Book 😍
                 </Label>
                 <Input id='friendEmail' type='email' placeholder='example@domain.com' />
               </Col>
