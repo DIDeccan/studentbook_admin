@@ -13,6 +13,7 @@ import urllib.parse
 from studentbookadminfrontend.models import GeneralContentVideo, MainContent
 from rest_framework import viewsets
 from studentbookadminfrontend.models import MainContent
+from django.db import connection
 
 
 
@@ -143,10 +144,12 @@ class UploadVideoAPIView(APIView):
             )
 
             if not created:
-                progress_deleted_count, _ = VideoTrackingLog.objects.filter(
-                    subchapter=subchapter
-                ).delete()
-                print(f"INFO: Video replaced. Deleted {progress_deleted_count} student tracking logs.")
+                with connection.cursor() as cursor:
+                    cursor.execute("DELETE FROM studentbookfrontend_videotrackinglog WHERE subchapter_id = %s", [subchapter.id])
+                # progress_deleted_count, _ = VideoTrackingLog.objects.filter(
+                #     subchapter=subchapter
+                # ).delete()
+            #     print(f"INFO: Video replaced. Deleted {progress_deleted_count} student tracking logs.")
             
         except Exception as e:
             return api_response(f"Failed to create/update subchapter: {str(e)}", "error", status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -480,7 +483,7 @@ class ClassListAPIView(APIView):
             data=serializer.data
         )
     
-# class GeneralContentVideoAPIView(APIView):
+#  class GeneralContentVideoAPIView(APIView):
 #     # GET: Get a list of all general videos or a single video
 #     def get(self, request, pk=None):
 #         if pk:

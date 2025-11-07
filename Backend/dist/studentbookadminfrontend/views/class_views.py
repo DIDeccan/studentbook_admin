@@ -92,38 +92,38 @@ class ClassWIthSubjectsView(APIView):
 
 
 # class PriceCalculatorGETAPIView(APIView):
-#     def get(self, request):
-#         try:
-#             # Get data from URL query parameters
-#             original_price = float(request.query_params.get('original_price'))
-#             discount_percentage = float(request.query_params.get('discount_percentage'))
+    def get(self, request):
+        try:
+            # Get data from URL query parameters
+            original_price = float(request.query_params.get('original_price'))
+            discount_percentage = float(request.query_params.get('discount_percentage'))
             
-#             # Simple validation
-#             if original_price is None or discount_percentage is None:
-#                 return api_response(
-#                     "Both original_price and discount_percentage are required.",
-#                     "error",
-#                     status.HTTP_400_BAD_REQUEST
-#                 )
+            # Simple validation
+            if original_price is None or discount_percentage is None:
+                return api_response(
+                    "Both original_price and discount_percentage are required.",
+                    "error",
+                    status.HTTP_400_BAD_REQUEST
+                )
             
-#             # Calculate the final price
-#             discount_amount = original_price * (discount_percentage / 100)
-#             final_price = original_price - discount_amount
+            # Calculate the final price
+            discount_amount = original_price * (discount_percentage / 100)
+            final_price = original_price - discount_amount
 
-#             # Return the result
-#             return api_response(
-#                 message="Final price calculated successfully.",
-#                 message_type="success",
-#                 status_code=status.HTTP_200_OK,
-#                 data={"final_price": final_price}
-#             )
+            # Return the result
+            return api_response(
+                message="Final price calculated successfully.",
+                message_type="success",
+                status_code=status.HTTP_200_OK,
+                data={"final_price": final_price}
+            )
         
-#         except (ValueError, TypeError):
-#             return api_response(
-#                 "Invalid data types. Please provide numbers.",
-#                 "error",
-#                 status.HTTP_400_BAD_REQUEST
-#             )
+        except (ValueError, TypeError):
+            return api_response(
+                "Invalid data types. Please provide numbers.",
+                "error",
+                status.HTTP_400_BAD_REQUEST
+            )
 
 
 

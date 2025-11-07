@@ -13,7 +13,7 @@ urlpatterns = [
     path('general_videos', GeneralContentVideoAPIView.as_view(), name='general-video-list'),
     # This URL handles GET (detail)
     path('general_videos/<int:pk>/', GeneralContentVideoAPIView.as_view(), name='general-video-detail'),
-
+    # This URL handles general_content_id (dropdown)
     path('general_content/', MainContentAPIView.as_view())
 
 
